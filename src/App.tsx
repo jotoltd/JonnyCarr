@@ -183,7 +183,6 @@ function App() {
                     key={raffle.id}
                     raffle={raffle}
                     onRefresh={loadRaffles}
-                    user={user}
                   />
                 ))}
               </div>
