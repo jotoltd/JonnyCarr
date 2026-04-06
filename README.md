@@ -1,4 +1,4 @@
-# Jonny Carr Cue Raffle
+# Jonny Carr Cue
 
 A modern raffle ticket system built with React, TypeScript, Tailwind CSS, and Supabase.
 

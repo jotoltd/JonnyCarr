@@ -38,7 +38,7 @@ function App() {
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Jonny Carr Cue Raffle</h1>
+                <h1 className="text-xl font-bold text-gray-900">Jonny Carr Cue</h1>
                 <p className="text-xs text-gray-500">Your chance to win amazing prizes!</p>
               </div>
             </div>
@@ -83,7 +83,7 @@ function App() {
             <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white mb-8">
               <div className="max-w-2xl">
                 <h2 className="text-3xl font-bold mb-4">
-                  Welcome to Jonny Carr Cue Raffle
+                  Welcome to Jonny Carr Cue
                 </h2>
                 <p className="text-indigo-100 text-lg mb-6">
                   Buy tickets for our exciting raffles and be in with a chance to win amazing prizes! 
@@ -140,7 +140,7 @@ function App() {
       <footer className="bg-white border-t border-gray-200 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-gray-600">
-            <p>&copy; {new Date().getFullYear()} Jonny Carr Cue Raffle. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Jonny Carr Cue. All rights reserved.</p>
           </div>
         </div>
       </footer>
