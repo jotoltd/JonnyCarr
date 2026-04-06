@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Raffle } from '../types';
+import type { Raffle, User } from '../types';
 import { Button } from './Button';
 import { TicketPurchase } from './TicketPurchase';
 import { Ticket, Users, PoundSterling, Clock, XCircle, Trophy } from 'lucide-react';
@@ -11,9 +11,10 @@ interface RaffleCardProps {
   onClose?: (id: string) => void;
   onDraw?: (id: string) => void;
   onDelete?: (id: string) => void;
+  user?: User | null;
 }
 
-export function RaffleCard({ raffle, isAdmin, onRefresh, onClose, onDraw, onDelete }: RaffleCardProps) {
+export function RaffleCard({ raffle, isAdmin, onRefresh, onClose, onDraw, onDelete, user }: RaffleCardProps) {
   const [showPurchase, setShowPurchase] = useState(false);
   const availableTickets = raffle.total_tickets - raffle.tickets_sold;
   const progress = (raffle.tickets_sold / raffle.total_tickets) * 100;

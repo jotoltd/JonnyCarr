@@ -24,3 +24,10 @@ export interface Ticket {
 export interface RaffleWithTickets extends Raffle {
   tickets: Ticket[];
 }
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  created_at: string;
+}
