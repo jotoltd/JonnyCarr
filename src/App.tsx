@@ -6,14 +6,15 @@ import { getActiveRaffles } from './lib/api';
 import type { Raffle, User } from './types';
 import { Ticket, Users, Sparkles, User as UserIcon, LogOut, Shield } from 'lucide-react';
 
+// Admin user name
+const ADMIN_USERNAME = 'Jonathan';
+
 function App() {
   const [activeTab, setActiveTab] = useState<'raffles' | 'admin' | 'auth'>('raffles');
   const [raffles, setRaffles] = useState<Raffle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [user, setUser] = useState<User | null>(null);
-  const [showAdminModal, setShowAdminModal] = useState(false);
-  const [adminKeyInput, setAdminKeyInput] = useState('');
 
   // Check for logged in user on mount
   useEffect(() => {
@@ -23,24 +24,7 @@ function App() {
     }
   }, []);
 
-  // Secret admin access - triple-click on logo
-  const [clickCount, setClickCount] = useState(0);
-  const [lastClickTime, setLastClickTime] = useState(0);
-
-  const handleLogoClick = () => {
-    const now = Date.now();
-    if (now - lastClickTime < 500) {
-      const newCount = clickCount + 1;
-      setClickCount(newCount);
-      if (newCount >= 3) {
-        setShowAdminModal(true);
-        setClickCount(0);
-      }
-    } else {
-      setClickCount(1);
-    }
-    setLastClickTime(now);
-  };
+  const isAdmin = user?.name === ADMIN_USERNAME;
 
   const loadRaffles = async () => {
     try {
@@ -67,70 +51,16 @@ function App() {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('user');
-  };
-
-  const handleAdminAccess = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (adminKeyInput === 'admin123') {
-      setShowAdminModal(false);
-      setActiveTab('admin');
-      setAdminKeyInput('');
-    } else {
-      alert('Invalid admin key');
-    }
+    setActiveTab('raffles');
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Admin Access Modal */}
-      {showAdminModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-indigo-600" />
-                Admin Access
-              </h3>
-              <button
-                onClick={() => setShowAdminModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ×
-              </button>
-            </div>
-            <form onSubmit={handleAdminAccess} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Admin Key
-                </label>
-                <input
-                  type="password"
-                  value={adminKeyInput}
-                  onChange={e => setAdminKeyInput(e.target.value)}
-                  className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2 border"
-                  placeholder="Enter admin key"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-              >
-                Access Admin Panel
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div 
-              className="flex items-center gap-3 cursor-pointer select-none"
-              onClick={handleLogoClick}
-              title="Triple-click for admin access"
-            >
+            <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
@@ -154,6 +84,22 @@ function App() {
                   Raffles
                 </span>
               </button>
+              
+              {isAdmin && (
+                <button
+                  onClick={() => setActiveTab('admin')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    activeTab === 'admin'
+                      ? 'bg-indigo-100 text-indigo-700'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    Admin
+                  </span>
+                </button>
+              )}
               
               {user ? (
                 <div className="flex items-center gap-3">
@@ -249,7 +195,7 @@ function App() {
           <UserAuth onLogin={handleLogin} />
         )}
         
-        {activeTab === 'admin' && (
+        {activeTab === 'admin' && isAdmin && (
           <AdminPanel />
         )}
       </main>
