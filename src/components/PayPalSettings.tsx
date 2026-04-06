@@ -1,0 +1,225 @@
+import { useState, useEffect } from 'react';
+import { Button } from './Button';
+import { CreditCard, DollarSign, CheckCircle, AlertCircle, X, ExternalLink } from 'lucide-react';
+
+interface PayPalSettings {
+  clientId: string;
+  businessEmail: string;
+  mode: 'sandbox' | 'live';
+  enabled: boolean;
+}
+
+const DEFAULT_PAYPAL_SETTINGS: PayPalSettings = {
+  clientId: '',
+  businessEmail: '',
+  mode: 'sandbox',
+  enabled: false,
+};
+
+const STORAGE_KEY = 'paypalSettings';
+
+export function getPayPalSettings(): PayPalSettings {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) {
+    return { ...DEFAULT_PAYPAL_SETTINGS, ...JSON.parse(stored) };
+  }
+  return DEFAULT_PAYPAL_SETTINGS;
+}
+
+export function savePayPalSettings(settings: PayPalSettings) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+}
+
+interface PayPalSettingsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProps) {
+  const [settings, setSettings] = useState<PayPalSettings>(DEFAULT_PAYPAL_SETTINGS);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setSettings(getPayPalSettings());
+      setError('');
+      setSuccess('');
+    }
+  }, [isOpen]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (settings.enabled) {
+      if (!settings.clientId.trim()) {
+        setError('Client ID is required when PayPal is enabled');
+        return;
+      }
+      if (!settings.businessEmail.trim()) {
+        setError('Business email is required when PayPal is enabled');
+        return;
+      }
+      if (!settings.businessEmail.includes('@')) {
+        setError('Please enter a valid business email');
+        return;
+      }
+    }
+
+    savePayPalSettings(settings);
+    setSuccess('PayPal settings saved successfully!');
+    
+    setTimeout(() => {
+      setSuccess('');
+    }, 3000);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
+      <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CreditCard className="w-5 h-5 text-blue-600" />
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900">PayPal Settings</h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span className="break-words">{error}</span>
+            </div>
+          )}
+          
+          {success && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-green-700 text-sm flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
+              {success}
+            </div>
+          )}
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+            <p className="flex items-start gap-2">
+              <DollarSign className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>
+                Enter your PayPal Business account details to enable ticket payments. 
+                Get your Client ID from the{' '}
+                <a 
+                  href="https://developer.paypal.com/dashboard/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="underline hover:text-blue-900 inline-flex items-center gap-0.5"
+                >
+                  PayPal Developer Dashboard
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </span>
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <input
+              type="checkbox"
+              id="paypalEnabled"
+              checked={settings.enabled}
+              onChange={e => setSettings({ ...settings, enabled: e.target.checked })}
+              className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+            />
+            <label htmlFor="paypalEnabled" className="text-sm font-medium text-gray-700">
+              Enable PayPal Payments
+            </label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              PayPal Client ID {settings.enabled && <span className="text-red-500">*</span>}
+            </label>
+            <input
+              type="text"
+              value={settings.clientId}
+              onChange={e => setSettings({ ...settings, clientId: e.target.value })}
+              placeholder="Enter your PayPal Client ID"
+              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3 py-2 border text-sm"
+              required={settings.enabled}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Found in your PayPal Developer Dashboard under Apps & Credentials
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Business Email {settings.enabled && <span className="text-red-500">*</span>}
+            </label>
+            <input
+              type="email"
+              value={settings.businessEmail}
+              onChange={e => setSettings({ ...settings, businessEmail: e.target.value })}
+              placeholder="your-business@example.com"
+              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3 py-2 border text-sm"
+              required={settings.enabled}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Your PayPal business account email
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Mode
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="paypalMode"
+                  value="sandbox"
+                  checked={settings.mode === 'sandbox'}
+                  onChange={e => setSettings({ ...settings, mode: e.target.value as 'sandbox' | 'live' })}
+                  className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">Sandbox (Test)</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="paypalMode"
+                  value="live"
+                  checked={settings.mode === 'live'}
+                  onChange={e => setSettings({ ...settings, mode: e.target.value as 'sandbox' | 'live' })}
+                  className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">Live (Production)</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2 pt-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClose}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button type="submit" className="flex-1">
+              Save Settings
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

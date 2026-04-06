@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { RaffleCard } from './RaffleCard';
 import { CreateRaffleForm } from './CreateRaffleForm';
 import { Button } from './Button';
+import { PayPalSettingsModal } from './PayPalSettings';
 import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner } from '../lib/api';
 import type { Raffle, Ticket } from '../types';
-import { Shield, RefreshCw, TicketCheck, AlertCircle, Loader2, X, Lock, User, LogOut, Key } from 'lucide-react';
+import { Shield, RefreshCw, TicketCheck, AlertCircle, Loader2, X, Lock, User, LogOut, Key, CreditCard } from 'lucide-react';
 
 // Default credentials
 const DEFAULT_USERNAME = 'Jonathan';
@@ -43,6 +44,9 @@ export function AdminPanel() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordChangeError, setPasswordChangeError] = useState('');
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState('');
+
+  // PayPal settings state
+  const [showPayPalSettings, setShowPayPalSettings] = useState(false);
 
   const credentials = getStoredCredentials();
 
@@ -231,6 +235,11 @@ export function AdminPanel() {
           <p className="text-gray-600 text-sm sm:text-base">Manage raffles and view ticket sales</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" onClick={() => setShowPayPalSettings(true)} className="text-sm">
+            <CreditCard className="w-4 h-4 mr-1.5" />
+            <span className="hidden sm:inline">PayPal Settings</span>
+            <span className="sm:hidden">PayPal</span>
+          </Button>
           <Button variant="secondary" onClick={() => setShowChangePassword(true)} className="text-sm">
             <Key className="w-4 h-4 mr-1.5" />
             <span className="hidden sm:inline">Change Password</span>
@@ -246,6 +255,12 @@ export function AdminPanel() {
           </Button>
         </div>
       </div>
+
+      {/* PayPal Settings Modal */}
+      <PayPalSettingsModal
+        isOpen={showPayPalSettings}
+        onClose={() => setShowPayPalSettings(false)}
+      />
 
       {/* Change Password Modal */}
       {showChangePassword && (
