@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test</title>
+  <style>body { font-family: sans-serif; padding: 40px; }</style>
+</head>
+<body>
+  <h1>Jonny Carr Cue Raffle</h1>
+  <p>Loading app...</p>
+  <div id="debug"></div>
+  <script>
+    // Check for JS errors
+    window.onerror = function(msg, url, line) {
+      document.getElementById('debug').innerHTML += '<p style="color:red">Error: ' + msg + '</p>';
+      return false;
+    };
+    
+    // Try to load the React app
+    setTimeout(() => {
+      const root = document.getElementById('root');
+      if (!root || root.innerHTML === '') {
+        document.getElementById('debug').innerHTML = '<p style="color:orange">React app not mounted. Check console for errors.</p>';
+      }
+    }, 2000);
+  </script>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

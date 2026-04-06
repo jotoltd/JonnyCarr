@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jonny Carr Cue Raffle</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; }
+      #loading { padding: 40px; text-align: center; color: #4f46e5; }
+      #error { padding: 40px; color: #dc2626; display: none; }
+    </style>
+  </head>
+  <body>
+    <div id="loading">Loading Jonny Carr Cue Raffle...</div>
+    <div id="error"></div>
+    <div id="root"></div>
+    <script>
+      window.onerror = function(msg, url, line) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').innerHTML = '<h2>JavaScript Error</h2><p>' + msg + '</p><p>Line: ' + line + '</p>';
+        return false;
+      };
+      setTimeout(function() {
+        if (!document.getElementById('root').innerHTML) {
+          document.getElementById('loading').innerHTML = 'Still loading... If this persists, check the console for errors.';
+        }
+      }, 3000);
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
