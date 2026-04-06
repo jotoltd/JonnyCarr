@@ -41,62 +41,64 @@ export function RaffleCard({ raffle, isAdmin, onRefresh, onClose, onDraw, onDele
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-1">{raffle.title}</h3>
+    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 flex flex-col">
+      <div className="p-4 sm:p-6 flex-1">
+        <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
+          <div className="min-w-0 flex-1">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 truncate">{raffle.title}</h3>
             {raffle.description && (
-              <p className="text-gray-600 text-sm">{raffle.description}</p>
+              <p className="text-gray-600 text-sm line-clamp-2">{raffle.description}</p>
             )}
           </div>
-          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor()}`}>
+          <span className={`inline-flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-xs font-medium flex-shrink-0 ${getStatusColor()}`}>
             {getStatusIcon()}
-            {raffle.status.charAt(0).toUpperCase() + raffle.status.slice(1)}
+            <span className="hidden sm:inline">{raffle.status.charAt(0).toUpperCase() + raffle.status.slice(1)}</span>
+            <span className="sm:hidden">{raffle.status.charAt(0).toUpperCase()}</span>
           </span>
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-6">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+        <div className="mb-4 sm:mb-6">
+          <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-2">
             <span className="flex items-center gap-1">
-              <Ticket className="w-4 h-4" />
-              {raffle.tickets_sold} / {raffle.total_tickets} tickets sold
+              <Ticket className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{raffle.tickets_sold} / {raffle.total_tickets} sold</span>
+              <span className="sm:hidden">{raffle.tickets_sold}/{raffle.total_tickets}</span>
             </span>
             <span className="flex items-center gap-1">
-              <Users className="w-4 h-4" />
-              {Math.round(progress)}% sold
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              {Math.round(progress)}%
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
+          <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className="bg-indigo-600 h-2.5 rounded-full transition-all duration-500"
+              className="bg-indigo-600 h-2 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
           <div className="flex items-center gap-2 text-gray-700">
-            <PoundSterling className="w-5 h-5" />
-            <span className="text-2xl font-bold">£{raffle.price_per_ticket}</span>
-            <span className="text-gray-500">per ticket</span>
+            <PoundSterling className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="text-xl sm:text-2xl font-bold">£{raffle.price_per_ticket}</span>
+            <span className="text-gray-500 text-sm">per ticket</span>
           </div>
-          <div className="text-right">
-            <span className="text-sm text-gray-500">Available:</span>
-            <span className={`ml-2 font-semibold ${availableTickets > 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <div className="text-left sm:text-right">
+            <span className="text-xs sm:text-sm text-gray-500">Available:</span>
+            <span className={`ml-1 sm:ml-2 font-semibold ${availableTickets > 0 ? 'text-green-600' : 'text-red-600'}`}>
               {availableTickets} tickets
             </span>
           </div>
         </div>
 
         {raffle.status === 'drawn' && raffle.winning_ticket_number && (
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
-            <div className="flex items-center gap-2 text-purple-800 font-semibold mb-1">
-              <Trophy className="w-5 h-5" />
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 sm:p-4 mb-4">
+            <div className="flex items-center gap-2 text-purple-800 font-semibold mb-1 text-sm">
+              <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
               Winning Ticket
             </div>
-            <div className="text-3xl font-bold text-purple-900">
+            <div className="text-2xl sm:text-3xl font-bold text-purple-900">
               #{raffle.winning_ticket_number}
             </div>
           </div>
@@ -104,22 +106,24 @@ export function RaffleCard({ raffle, isAdmin, onRefresh, onClose, onDraw, onDele
 
         {/* Admin Actions */}
         {isAdmin && (
-          <div className="flex gap-2 mb-4 pt-4 border-t border-gray-100">
+          <div className="flex flex-wrap gap-2 mb-4 pt-4 border-t border-gray-100">
             {raffle.status === 'active' && (
               <>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => onClose?.(raffle.id)}
+                  className="flex-1 sm:flex-none"
                 >
-                  Close Raffle
+                  Close
                 </Button>
                 <Button
                   variant="primary"
                   size="sm"
                   onClick={() => onDraw?.(raffle.id)}
+                  className="flex-1 sm:flex-none"
                 >
-                  Draw Winner
+                  Draw
                 </Button>
               </>
             )}

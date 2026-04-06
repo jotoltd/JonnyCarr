@@ -48,8 +48,8 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
 
   if (!isOpen) {
     return (
-      <Button onClick={() => setIsOpen(true)} size="lg">
-        <Plus className="w-5 h-5 mr-2" />
+      <Button onClick={() => setIsOpen(true)} className="w-full sm:w-auto">
+        <Plus className="w-5 h-5 mr-1.5" />
         Create New Raffle
       </Button>
     );
@@ -57,17 +57,17 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-      <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900">Create New Raffle</h2>
+      <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900">Create New Raffle</h2>
         <button
           onClick={() => setIsOpen(false)}
           className="text-gray-400 hover:text-gray-600 transition-colors"
         >
-          <X className="w-6 h-6" />
+          <X className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
       </div>
       
-      <form onSubmit={handleSubmit} className="p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
             {error}
@@ -91,7 +91,7 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
           rows={3}
         />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Total Tickets *"
             type="number"
@@ -114,7 +114,7 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
           />
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4 mt-4">
+        <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mt-4">
           <p className="text-sm text-gray-600">
             <strong>Summary:</strong>{' '}
             {totalTickets && pricePerTicket
@@ -123,17 +123,19 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
           </p>
         </div>
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4">
           <Button
             type="button"
             variant="secondary"
             onClick={() => setIsOpen(false)}
+            className="w-full sm:w-auto"
           >
             Cancel
           </Button>
           <Button
             type="submit"
             disabled={isSubmitting || !title || !totalTickets || !pricePerTicket}
+            className="w-full sm:w-auto"
           >
             {isSubmitting ? 'Creating...' : 'Create Raffle'}
           </Button>

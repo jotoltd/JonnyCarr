@@ -46,28 +46,28 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
 
   if (purchasedTickets) {
     return (
-      <div className="text-center py-8">
-        <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+      <div className="text-center py-6 sm:py-8">
+        <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-green-500 mx-auto mb-4" />
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
           Purchase Successful!
         </h3>
-        <p className="text-gray-600 mb-4">
+        <p className="text-gray-600 mb-4 text-sm sm:text-base">
           Thank you {buyerName}! Your ticket numbers are:
         </p>
-        <div className="flex flex-wrap justify-center gap-2 mb-6">
+        <div className="flex flex-wrap justify-center gap-2 mb-6 px-2">
           {purchasedTickets.map(num => (
             <span
               key={num}
-              className="inline-flex items-center px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full font-semibold text-lg"
+              className="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-indigo-100 text-indigo-800 rounded-full font-semibold text-base sm:text-lg"
             >
               #{num}
             </span>
           ))}
         </div>
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-xs sm:text-sm text-gray-500 mb-4">
           A confirmation has been sent to {buyerEmail}
         </p>
-        <Button onClick={() => setPurchasedTickets(null)}>
+        <Button onClick={() => setPurchasedTickets(null)} size="sm" className="sm:size-default">
           Buy More Tickets
         </Button>
       </div>
@@ -76,18 +76,18 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="bg-gray-50 rounded-lg p-4 mb-4">
-        <div className="flex items-center justify-between mb-2">
+      <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4">
+        <div className="flex items-center justify-between mb-2 text-sm">
           <span className="text-gray-600">Price per ticket:</span>
           <span className="font-semibold">£{raffle.price_per_ticket}</span>
         </div>
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-2 text-sm">
           <span className="text-gray-600">Available tickets:</span>
           <span className="font-semibold">{availableTickets}</span>
         </div>
         <div className="flex items-center justify-between pt-2 border-t">
           <span className="text-gray-900 font-medium">Total:</span>
-          <span className="text-xl font-bold text-indigo-600">£{totalPrice}</span>
+          <span className="text-lg sm:text-xl font-bold text-indigo-600">£{totalPrice}</span>
         </div>
       </div>
 
@@ -101,20 +101,20 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Number of Tickets
         </label>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-semibold"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-semibold"
             disabled={quantity <= 1}
           >
             -
           </button>
-          <span className="text-xl font-semibold w-12 text-center">{quantity}</span>
+          <span className="text-lg sm:text-xl font-semibold w-10 sm:w-12 text-center">{quantity}</span>
           <button
             type="button"
             onClick={() => setQuantity(Math.min(availableTickets, quantity + 1))}
-            className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-semibold"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-semibold"
             disabled={quantity >= availableTickets}
           >
             +
@@ -150,18 +150,17 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
 
       <Button
         type="submit"
-        size="lg"
-        className="w-full mt-6"
+        className="w-full mt-4 sm:mt-6"
         disabled={isSubmitting || availableTickets === 0}
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+            <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
             Processing...
           </>
         ) : (
           <>
-            <Ticket className="w-5 h-5 mr-2" />
+            <Ticket className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             Buy {quantity} Ticket{quantity > 1 ? 's' : ''} - £{totalPrice}
           </>
         )}

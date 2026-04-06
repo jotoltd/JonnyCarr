@@ -73,16 +73,16 @@ export function UserAuth({ onLogin }: UserAuthProps) {
   };
 
   return (
-    <div className="max-w-md mx-auto py-12">
-      <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
+    <div className="max-w-md mx-auto py-8 sm:py-12 px-4 sm:px-0">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 sm:p-8">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            {isLogin ? <LogIn className="w-8 h-8 text-indigo-600" /> : <UserPlus className="w-8 h-8 text-indigo-600" />}
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            {isLogin ? <LogIn className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-600" /> : <UserPlus className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-600" />}
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
             {isLogin ? 'Login' : 'Create Account'}
           </h2>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">
             {isLogin ? 'Sign in to your account' : 'Register to buy tickets'}
           </p>
         </div>
@@ -90,8 +90,8 @@ export function UserAuth({ onLogin }: UserAuthProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" />
-              {error}
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span className="break-words">{error}</span>
             </div>
           )}
 
@@ -142,7 +142,7 @@ export function UserAuth({ onLogin }: UserAuthProps) {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm sm:text-base">
             {isLogin ? "Don't have an account?" : 'Already have an account?'}
           </p>
           <button
@@ -151,7 +151,7 @@ export function UserAuth({ onLogin }: UserAuthProps) {
               setIsLogin(!isLogin);
               setError('');
             }}
-            className="text-indigo-600 hover:text-indigo-700 font-medium mt-1"
+            className="text-indigo-600 hover:text-indigo-700 font-medium mt-1 text-sm sm:text-base"
           >
             {isLogin ? 'Register here' : 'Login here'}
           </button>
