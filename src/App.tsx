@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { RaffleCard } from './components/RaffleCard';
 import { AdminPanel } from './components/AdminPanel';
 import { UserAuth } from './components/UserAuth';
@@ -276,6 +277,7 @@ function App() {
           </div>
         </div>
       </footer>
+      <Analytics />
     </div>
   );
 }
