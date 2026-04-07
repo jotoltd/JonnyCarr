@@ -1,10 +1,93 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Raffle, Ticket } from '../types';
+import type { Raffle, Ticket, User } from '../types';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
+
+// User operations
+export async function registerUser(email: string, password: string, name: string): Promise<User> {
+  const { data: existing } = await supabase
+    .from('users')
+    .select('email')
+    .eq('email', email)
+    .single();
+  
+  if (existing) {
+    throw new Error('User already exists with this email');
+  }
+  
+  const { data, error } = await supabase
+    .from('users')
+    .insert({ email, password, name })
+    .select('id, email, name, created_at')
+    .single();
+  
+  if (error) throw error;
+  return data;
+}
+
+export async function loginUser(email: string, password: string): Promise<User | null> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, email, name, created_at, password')
+    .eq('email', email)
+    .eq('password', password)
+    .single();
+  
+  if (error || !data) {
+    throw new Error('Invalid email or password');
+  }
+  
+  // Don't return password to client
+  const { password: _, ...user } = data;
+  return user;
+}
+
+export async function getUserByEmail(email: string): Promise<User | null> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, email, name, created_at')
+    .eq('email', email)
+    .single();
+  
+  if (error) return null;
+  return data;
+}
+
+// PayPal Settings operations
+export interface PayPalSettings {
+  id?: string;
+  client_id: string;
+  business_email: string;
+  mode: 'sandbox' | 'live';
+  enabled: boolean;
+  updated_at?: string;
+}
+
+export async function getPayPalSettingsDB(): Promise<PayPalSettings | null> {
+  const { data, error } = await supabase
+    .from('paypal_settings')
+    .select('*')
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .single();
+  
+  if (error) return null;
+  return data;
+}
+
+export async function savePayPalSettingsDB(settings: Omit<PayPalSettings, 'id' | 'updated_at'>): Promise<void> {
+  const { error } = await supabase
+    .from('paypal_settings')
+    .upsert({
+      ...settings,
+      updated_at: new Date().toISOString()
+    });
+  
+  if (error) throw error;
+}
 
 // Raffle operations
 export async function getActiveRaffles(): Promise<Raffle[]> {

@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import type { Raffle } from '../types';
 import { Button } from './Button';
 import { Input } from './Input';
-import { purchaseTickets } from '../lib/api';
+import { purchaseTickets, getPayPalSettingsDB, type PayPalSettings } from '../lib/api';
 import { Ticket, CheckCircle, Loader2, CreditCard, AlertCircle } from 'lucide-react';
-import { getPayPalSettings } from './PayPalSettings';
 
 interface TicketPurchaseProps {
   raffle: Raffle;
@@ -21,17 +20,25 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
   const [purchasedTickets, setPurchasedTickets] = useState<number[] | null>(null);
   const [paypalLoaded, setPaypalLoaded] = useState(false);
   const [paymentStep, setPaymentStep] = useState<'form' | 'payment' | 'success'>('form');
+  const [paypalSettings, setPaypalSettings] = useState<PayPalSettings | null>(null);
 
   const availableTickets = raffle.total_tickets - raffle.tickets_sold;
   const totalPrice = quantity * raffle.price_per_ticket;
-  const paypalSettings = getPayPalSettings();
-  const isPayPalEnabled = paypalSettings.enabled && paypalSettings.clientId;
+  
+  // Load PayPal settings from database
+  useEffect(() => {
+    getPayPalSettingsDB().then(settings => {
+      setPaypalSettings(settings);
+    });
+  }, []);
+  
+  const isPayPalEnabled = paypalSettings?.enabled && paypalSettings?.client_id;
 
   // Load PayPal SDK when needed
   useEffect(() => {
     if (isPayPalEnabled && paymentStep === 'payment' && !window.paypal) {
       const script = document.createElement('script');
-      const clientId = paypalSettings.clientId;
+      const clientId = paypalSettings?.client_id;
       const sdkUrl = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=GBP&intent=capture`;
       
       script.src = sdkUrl;
@@ -52,7 +59,7 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
     } else if (isPayPalEnabled && window.paypal) {
       setPaypalLoaded(true);
     }
-  }, [isPayPalEnabled, paymentStep, paypalSettings.clientId]);
+  }, [isPayPalEnabled, paymentStep, paypalSettings?.client_id]);
 
   // Render PayPal buttons when SDK is loaded
   useEffect(() => {

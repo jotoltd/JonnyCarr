@@ -17,28 +17,7 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Check for logged in user on mount
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-
-    // Create default admin user if not exists
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    if (!users.find((u: User) => u.name === ADMIN_USERNAME)) {
-      const adminUser = {
-        id: crypto.randomUUID(),
-        name: ADMIN_USERNAME,
-        email: 'jonathan@jonnycarr.co.uk',
-        password: 'R1l3yj014!',
-        created_at: new Date().toISOString(),
-      };
-      users.push(adminUser);
-      localStorage.setItem('users', JSON.stringify(users));
-    }
-  }, []);
-
+  // No localStorage persistence - all user data in database only
   const isAdmin = user?.name === ADMIN_USERNAME;
 
   const loadRaffles = async () => {
@@ -59,14 +38,12 @@ function App() {
 
   const handleLogin = (userData: User) => {
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
     setActiveTab('raffles');
     setMobileMenuOpen(false);
   };
 
   const handleLogout = () => {
     setUser(null);
-    localStorage.removeItem('user');
     setActiveTab('raffles');
     setMobileMenuOpen(false);
   };

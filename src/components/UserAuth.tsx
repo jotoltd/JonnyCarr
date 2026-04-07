@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from './Button';
 import { Input } from './Input';
 import type { User } from '../types';
+import { registerUser, loginUser } from '../lib/api';
 import { UserPlus, LogIn, AlertCircle } from 'lucide-react';
 
 interface UserAuthProps {
@@ -23,20 +24,13 @@ export function UserAuth({ onLogin }: UserAuthProps) {
 
     try {
       if (isLogin) {
-        // Login - check localStorage for now
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const user = users.find((u: User & { password: string }) => 
-          u.email === email && u.password === password
-        );
-        
-        if (!user) {
-          throw new Error('Invalid email or password');
+        // Login via database
+        const user = await loginUser(email, password);
+        if (user) {
+          onLogin(user);
         }
-        
-        const { password: _, ...userWithoutPassword } = user;
-        onLogin(userWithoutPassword);
       } else {
-        // Register
+        // Register via database
         if (!name || !email || !password) {
           throw new Error('Please fill in all fields');
         }
@@ -45,25 +39,8 @@ export function UserAuth({ onLogin }: UserAuthProps) {
           throw new Error('Password must be at least 6 characters');
         }
 
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        
-        if (users.find((u: User) => u.email === email)) {
-          throw new Error('Email already registered');
-        }
-
-        const newUser: User & { password: string } = {
-          id: crypto.randomUUID(),
-          name,
-          email,
-          password,
-          created_at: new Date().toISOString(),
-        };
-
-        users.push(newUser);
-        localStorage.setItem('users', JSON.stringify(users));
-
-        const { password: _, ...userWithoutPassword } = newUser;
-        onLogin(userWithoutPassword);
+        const user = await registerUser(email, password, name);
+        onLogin(user);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

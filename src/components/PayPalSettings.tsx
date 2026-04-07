@@ -1,34 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from './Button';
-import { CreditCard, DollarSign, CheckCircle, AlertCircle, X, ExternalLink } from 'lucide-react';
-
-interface PayPalSettings {
-  clientId: string;
-  businessEmail: string;
-  mode: 'sandbox' | 'live';
-  enabled: boolean;
-}
-
-const DEFAULT_PAYPAL_SETTINGS: PayPalSettings = {
-  clientId: '',
-  businessEmail: '',
-  mode: 'sandbox',
-  enabled: false,
-};
-
-const STORAGE_KEY = 'paypalSettings';
-
-export function getPayPalSettings(): PayPalSettings {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    return { ...DEFAULT_PAYPAL_SETTINGS, ...JSON.parse(stored) };
-  }
-  return DEFAULT_PAYPAL_SETTINGS;
-}
-
-export function savePayPalSettings(settings: PayPalSettings) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-}
+import { CreditCard, DollarSign, CheckCircle, AlertCircle, X, ExternalLink, Loader2 } from 'lucide-react';
+import { getPayPalSettingsDB, savePayPalSettingsDB, type PayPalSettings as PayPalSettingsDB } from '../lib/api';
 
 interface PayPalSettingsModalProps {
   isOpen: boolean;
@@ -36,44 +9,75 @@ interface PayPalSettingsModalProps {
 }
 
 export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProps) {
-  const [settings, setSettings] = useState<PayPalSettings>(DEFAULT_PAYPAL_SETTINGS);
+  const [settings, setSettings] = useState<PayPalSettingsDB>({
+    client_id: '',
+    business_email: '',
+    mode: 'sandbox',
+    enabled: false,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
     if (isOpen) {
-      setSettings(getPayPalSettings());
+      loadSettings();
       setError('');
       setSuccess('');
     }
   }, [isOpen]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const loadSettings = async () => {
+    setIsLoading(true);
+    try {
+      const dbSettings = await getPayPalSettingsDB();
+      if (dbSettings) {
+        setSettings(dbSettings);
+      }
+    } catch (err) {
+      console.error('Failed to load PayPal settings:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setIsSaving(true);
 
     if (settings.enabled) {
-      if (!settings.clientId.trim()) {
+      if (!settings.client_id.trim()) {
         setError('Client ID is required when PayPal is enabled');
+        setIsSaving(false);
         return;
       }
-      if (!settings.businessEmail.trim()) {
+      if (!settings.business_email.trim()) {
         setError('Business email is required when PayPal is enabled');
+        setIsSaving(false);
         return;
       }
-      if (!settings.businessEmail.includes('@')) {
+      if (!settings.business_email.includes('@')) {
         setError('Please enter a valid business email');
+        setIsSaving(false);
         return;
       }
     }
 
-    savePayPalSettings(settings);
-    setSuccess('PayPal settings saved successfully!');
-    
-    setTimeout(() => {
-      setSuccess('');
-    }, 3000);
+    try {
+      await savePayPalSettingsDB(settings);
+      setSuccess('PayPal settings saved successfully!');
+      
+      setTimeout(() => {
+        setSuccess('');
+      }, 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save settings');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -95,6 +99,12 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+          {isLoading && (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+            </div>
+          )}
+
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm flex items-start gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
@@ -135,6 +145,7 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
               checked={settings.enabled}
               onChange={e => setSettings({ ...settings, enabled: e.target.checked })}
               className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+              disabled={isLoading}
             />
             <label htmlFor="paypalEnabled" className="text-sm font-medium text-gray-700">
               Enable PayPal Payments
@@ -147,11 +158,12 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
             </label>
             <input
               type="text"
-              value={settings.clientId}
-              onChange={e => setSettings({ ...settings, clientId: e.target.value })}
+              value={settings.client_id}
+              onChange={e => setSettings({ ...settings, client_id: e.target.value })}
               placeholder="Enter your PayPal Client ID"
               className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3 py-2 border text-sm"
               required={settings.enabled}
+              disabled={isLoading}
             />
             <p className="text-xs text-gray-500 mt-1">
               Found in your PayPal Developer Dashboard under Apps & Credentials
@@ -164,11 +176,12 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
             </label>
             <input
               type="email"
-              value={settings.businessEmail}
-              onChange={e => setSettings({ ...settings, businessEmail: e.target.value })}
+              value={settings.business_email}
+              onChange={e => setSettings({ ...settings, business_email: e.target.value })}
               placeholder="your-business@example.com"
               className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3 py-2 border text-sm"
               required={settings.enabled}
+              disabled={isLoading}
             />
             <p className="text-xs text-gray-500 mt-1">
               Your PayPal business account email
@@ -188,6 +201,7 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
                   checked={settings.mode === 'sandbox'}
                   onChange={e => setSettings({ ...settings, mode: e.target.value as 'sandbox' | 'live' })}
                   className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  disabled={isLoading}
                 />
                 <span className="text-sm text-gray-700">Sandbox (Test)</span>
               </label>
@@ -199,6 +213,7 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
                   checked={settings.mode === 'live'}
                   onChange={e => setSettings({ ...settings, mode: e.target.value as 'sandbox' | 'live' })}
                   className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  disabled={isLoading}
                 />
                 <span className="text-sm text-gray-700">Live (Production)</span>
               </label>
@@ -211,11 +226,19 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
               variant="secondary"
               onClick={onClose}
               className="flex-1"
+              disabled={isSaving}
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1">
-              Save Settings
+            <Button type="submit" className="flex-1" disabled={isLoading || isSaving}>
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Settings'
+              )}
             </Button>
           </div>
         </form>
