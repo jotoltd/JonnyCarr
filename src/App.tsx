@@ -42,9 +42,6 @@ function App() {
   const featuredProgress = featuredRaffle
     ? Math.round((featuredRaffle.tickets_sold / featuredRaffle.total_tickets) * 100)
     : 0;
-  const featuredRevenue = featuredRaffle
-    ? (featuredRaffle.total_tickets * featuredRaffle.price_per_ticket).toFixed(2)
-    : '0.00';
 
   const loadRaffles = async () => {
     try {
@@ -370,7 +367,6 @@ function App() {
                         <div className="flex items-end justify-between gap-3">
                           <div>
                             <p className="text-3xl font-bold text-brand-green-dark">£{featuredRaffle.price_per_ticket}</p>
-                            <p className="text-sm text-brand-green">£{featuredRevenue} total prize pot</p>
                           </div>
                           <PoundSterling className="w-6 h-6 text-brand-gold flex-shrink-0" />
                         </div>
