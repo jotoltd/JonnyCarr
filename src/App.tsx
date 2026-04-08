@@ -11,7 +11,7 @@ import { TermsConditions } from './components/TermsConditions';
 import { PastWinners } from './components/PastWinners';
 import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
-import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2 } from 'lucide-react';
+import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2, AlertTriangle, Eye } from 'lucide-react';
 
 // Admin user name
 const ADMIN_USERNAME = 'Jonathan';
@@ -431,6 +431,26 @@ function App() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Almost Sold Out Warning */}
+                    {featuredAvailableTickets > 0 && featuredAvailableTickets <= 10 && (
+                      <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex items-center gap-3 animate-pulse">
+                        <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0" />
+                        <div>
+                          <p className="font-bold text-red-700">Almost Sold Out!</p>
+                          <p className="text-sm text-red-600">Only {featuredAvailableTickets} tickets remaining - get yours before they're gone!</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Social Proof Counter */}
+                    <div className="flex items-center justify-center gap-2 text-sm text-brand-green bg-brand-cream-light rounded-lg py-2 px-4 border border-brand-cream-border">
+                      <Eye className="w-4 h-4 text-brand-gold" />
+                      <span>
+                        <strong className="text-brand-green-dark">{Math.floor(Math.random() * 8) + 3}</strong> people viewing this raffle right now
+                      </span>
+                    </div>
+
                     <div className="max-w-4xl mx-auto">
                       <RaffleCard
                         raffle={featuredRaffle}

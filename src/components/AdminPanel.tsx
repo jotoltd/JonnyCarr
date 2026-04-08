@@ -5,6 +5,7 @@ import { CreateRaffleForm } from './CreateRaffleForm';
 import { Button } from './Button';
 import { PayPalSettingsModal } from './PayPalSettings';
 import { SkillQuestionBank } from './SkillQuestionBank';
+import { AdminAnalytics } from './AdminAnalytics';
 import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllUsers, updateUser, deleteUser } from '../lib/api';
 import type { Raffle, Ticket, User } from '../types';
 import { RefreshCw, TicketCheck, AlertCircle, Loader2, X, LogOut, Key, CreditCard, Users } from 'lucide-react';
@@ -59,6 +60,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
   const [editUserName, setEditUserName] = useState('');
   const [editUserEmail, setEditUserEmail] = useState('');
   const [editUserPassword, setEditUserPassword] = useState('');
+  const [activeTab, setActiveTab] = useState<'raffles' | 'users' | 'analytics' | 'questions'>('raffles');
 
   const loadRaffles = async () => {
     try {
@@ -277,7 +279,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-brand-green-dark">Admin Panel</h2>
-          <p className="text-brand-green text-sm sm:text-base">Manage raffles and view ticket sales</p>
+          <p className="text-brand-green text-sm sm:text-base">Manage raffles and view analytics</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="secondary" onClick={() => setShowPayPalSettings(true)} className="text-sm">
@@ -300,6 +302,59 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
           </Button>
         </div>
       </div>
+
+      {/* Navigation Tabs */}
+      <div className="flex flex-wrap gap-2 border-b border-brand-cream-border pb-4">
+        <button
+          onClick={() => setActiveTab('raffles')}
+          className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+            activeTab === 'raffles'
+              ? 'bg-brand-green text-brand-cream'
+              : 'bg-brand-cream-light text-brand-green-dark hover:bg-brand-cream'
+          }`}
+        >
+          Raffles
+        </button>
+        <button
+          onClick={() => setActiveTab('analytics')}
+          className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+            activeTab === 'analytics'
+              ? 'bg-brand-green text-brand-cream'
+              : 'bg-brand-cream-light text-brand-green-dark hover:bg-brand-cream'
+          }`}
+        >
+          Analytics
+        </button>
+        <button
+          onClick={() => setActiveTab('users')}
+          className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+            activeTab === 'users'
+              ? 'bg-brand-green text-brand-cream'
+              : 'bg-brand-cream-light text-brand-green-dark hover:bg-brand-cream'
+          }`}
+        >
+          Users
+        </button>
+        <button
+          onClick={() => setActiveTab('questions')}
+          className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+            activeTab === 'questions'
+              ? 'bg-brand-green text-brand-cream'
+              : 'bg-brand-cream-light text-brand-green-dark hover:bg-brand-cream'
+          }`}
+        >
+          Skill Questions
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'analytics' && (
+        <AdminAnalytics />
+      )}
+
+      {activeTab === 'raffles' && (
+        <>
+          <CreateRaffleForm onSuccess={loadRaffles} />
 
       {/* PayPal Settings Modal */}
       <PayPalSettingsModal
@@ -679,6 +734,118 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
             </div>
           </div>
         </div>
+      )}
+        </>
+      )}
+
+      {activeTab === 'users' && (
+        <div className="bg-brand-cream-light rounded-xl border-2 border-brand-cream-border p-4 sm:p-6 space-y-4">
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <h3 className="text-lg sm:text-xl font-bold text-brand-green-dark flex items-center gap-2">
+                <Users className="w-5 h-5 text-brand-gold" />
+                User Management
+              </h3>
+              <p className="text-sm text-brand-green">View and manage all registered users</p>
+            </div>
+            <Button variant="secondary" onClick={loadUsers} className="text-sm">
+              <RefreshCw className="w-4 h-4 mr-1.5" />
+              Refresh
+            </Button>
+          </div>
+
+          {userError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
+              {userError}
+            </div>
+          )}
+          {userSuccess && (
+            <div className="bg-brand-green-muted border border-brand-green rounded-lg p-3 text-brand-green-dark text-sm">
+              {userSuccess}
+            </div>
+          )}
+
+          {isLoadingUsers ? (
+            <div className="text-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto text-brand-green" />
+              <p className="text-brand-green mt-2 text-sm">Loading users...</p>
+            </div>
+          ) : users.length === 0 ? (
+            <div className="text-center py-8 bg-white rounded-xl border-2 border-brand-cream-border">
+              <Users className="w-10 h-10 text-brand-cream-border mx-auto mb-3" />
+              <p className="text-brand-green">No users found</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl border-2 border-brand-cream-border overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-brand-cream">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-brand-green-dark uppercase tracking-wider">Name</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-brand-green-dark uppercase tracking-wider">Email</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-brand-green-dark uppercase tracking-wider">Joined</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-brand-green-dark uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-brand-cream-border">
+                    {users.map(u => (
+                      <tr key={u.id} className="hover:bg-brand-cream-light">
+                        <td className="px-4 py-3">
+                          {editingUserId === u.id ? (
+                            <input
+                              type="text"
+                              value={editUserName}
+                              onChange={e => setEditUserName(e.target.value)}
+                              className="w-full px-2 py-1 border border-brand-cream-border rounded text-sm"
+                            />
+                          ) : (
+                            <span className="font-medium text-brand-green-dark text-sm">{u.name}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {editingUserId === u.id ? (
+                            <input
+                              type="email"
+                              value={editUserEmail}
+                              onChange={e => setEditUserEmail(e.target.value)}
+                              className="w-full px-2 py-1 border border-brand-cream-border rounded text-sm"
+                            />
+                          ) : (
+                            <span className="text-brand-green text-sm">{u.email}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-brand-green text-sm">
+                            {new Date(u.created_at).toLocaleDateString('en-GB')}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-2">
+                            {editingUserId === u.id ? (
+                              <>
+                                <Button variant="primary" size="sm" onClick={() => {}} className="text-xs">Save</Button>
+                                <Button variant="outline" size="sm" onClick={() => setEditingUserId(null)} className="text-xs">Cancel</Button>
+                              </>
+                            ) : (
+                              <>
+                                <Button variant="secondary" size="sm" onClick={() => { setEditingUserId(u.id); setEditUserName(u.name); setEditUserEmail(u.email); }} className="text-xs">Edit</Button>
+                                <Button variant="danger" size="sm" onClick={() => {}} className="text-xs">Delete</Button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'questions' && (
+        <SkillQuestionBank />
       )}
     </div>
   );
