@@ -20,6 +20,10 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
   const [raffleTickets, setRaffleTickets] = useState<Ticket[]>([]);
   const [showTickets, setShowTickets] = useState(false);
   const [drawResult, setDrawResult] = useState<{winningTicket: number; winner: Ticket | null} | null>(null);
+  const [showDrawModal, setShowDrawModal] = useState(false);
+  const [raffleToDraw, setRaffleToDraw] = useState<Raffle | null>(null);
+  const [winningTicketInput, setWinningTicketInput] = useState('');
+  const [drawError, setDrawError] = useState('');
   
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
@@ -81,6 +85,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
 
   const handleDrawWinner = async (id: string) => {
     try {
+      const raffle = raffles.find((item) => item.id === id) || null;
       const tickets = await getTicketsByRaffleId(id);
       
       if (tickets.length === 0) {
@@ -88,18 +93,44 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
         return;
       }
 
-      // Simulate draw animation
-      const winningTicket = tickets[Math.floor(Math.random() * tickets.length)];
-      
-      await drawWinner(id, winningTicket.ticket_number);
+      setDrawError('');
+      setWinningTicketInput('');
+      setRaffleToDraw(raffle);
+      setRaffleTickets(tickets);
+      setShowDrawModal(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to draw winner');
+    }
+  };
+
+  const confirmDrawWinner = async () => {
+    if (!raffleToDraw) return;
+
+    const winningNumber = parseInt(winningTicketInput, 10);
+    if (Number.isNaN(winningNumber)) {
+      setDrawError('Enter a valid winning ticket number');
+      return;
+    }
+
+    const winningTicket = raffleTickets.find((ticket) => ticket.ticket_number === winningNumber) || null;
+    if (!winningTicket) {
+      setDrawError('That ticket number has not been sold for this raffle');
+      return;
+    }
+
+    try {
+      setDrawError('');
+      await drawWinner(raffleToDraw.id, winningNumber);
       await loadRaffles();
-      
+      setShowDrawModal(false);
+      setRaffleToDraw(null);
+      setWinningTicketInput('');
       setDrawResult({
-        winningTicket: winningTicket.ticket_number,
+        winningTicket: winningNumber,
         winner: winningTicket
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to draw winner');
+      setDrawError(err instanceof Error ? err.message : 'Failed to draw winner');
     }
   };
 
@@ -327,6 +358,79 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                   </table>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDrawModal && raffleToDraw && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-brand-cream-light rounded-xl shadow-xl max-w-md w-full border-2 border-brand-cream-border">
+            <div className="h-1 bg-brand-gold" />
+            <div className="p-4 sm:p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg sm:text-xl font-bold text-brand-green-dark">Enter Winning Ticket</h3>
+                  <p className="text-sm text-brand-green">{raffleToDraw.title}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowDrawModal(false);
+                    setRaffleToDraw(null);
+                    setWinningTicketInput('');
+                    setDrawError('');
+                  }}
+                  className="text-brand-green hover:text-brand-green-dark"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {drawError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
+                  {drawError}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-brand-green-dark mb-1">
+                  Winning ticket number
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={winningTicketInput}
+                  onChange={(e) => setWinningTicketInput(e.target.value)}
+                  className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
+                  placeholder="Enter sold ticket number"
+                />
+              </div>
+
+              <div className="bg-brand-cream rounded-lg p-3 border border-brand-cream-border">
+                <p className="text-xs text-brand-green mb-1">Sold ticket numbers</p>
+                <p className="text-sm text-brand-green-dark break-words">
+                  {raffleTickets.map((ticket) => `#${ticket.ticket_number}`).join(', ')}
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    setShowDrawModal(false);
+                    setRaffleToDraw(null);
+                    setWinningTicketInput('');
+                    setDrawError('');
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button type="button" onClick={confirmDrawWinner} className="flex-1">
+                  Confirm Draw
+                </Button>
+              </div>
             </div>
           </div>
         </div>
