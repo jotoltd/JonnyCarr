@@ -17,6 +17,7 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
   const [imageUrl, setImageUrl] = useState('');
   const [totalTickets, setTotalTickets] = useState('');
   const [pricePerTicket, setPricePerTicket] = useState('');
+  const [endsAt, setEndsAt] = useState('');
   const [skillQuestions, setSkillQuestions] = useState<SkillQuestion[]>([]);
   const [selectedSkillQuestionId, setSelectedSkillQuestionId] = useState('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -55,6 +56,7 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
         total_tickets: parseInt(totalTickets),
         price_per_ticket: parseFloat(pricePerTicket),
         status: 'active',
+        ends_at: endsAt ? new Date(endsAt).toISOString() : null,
       });
       
       // Reset form
@@ -63,6 +65,7 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
       setImageUrl('');
       setTotalTickets('');
       setPricePerTicket('');
+      setEndsAt('');
       setSelectedSkillQuestionId('');
       setIsOpen(false);
       onSuccess();
@@ -182,6 +185,19 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
             onChange={e => setPricePerTicket(e.target.value)}
             placeholder="e.g., 5.00"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-brand-green-dark mb-1">
+            Raffle End Date (optional)
+          </label>
+          <input
+            type="datetime-local"
+            value={endsAt}
+            onChange={(e) => setEndsAt(e.target.value)}
+            className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
+          />
+          <p className="text-xs text-brand-green mt-1">When the raffle will automatically close</p>
         </div>
 
         <div className="bg-brand-cream-light border border-brand-cream-border rounded-lg p-3 sm:p-4 space-y-3">

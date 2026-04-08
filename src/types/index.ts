@@ -11,6 +11,7 @@ export interface Raffle {
   created_at: string;
   drawn_at: string | null;
   winning_ticket_number: number | null;
+  ends_at: string | null;
 }
 
 export interface Ticket {

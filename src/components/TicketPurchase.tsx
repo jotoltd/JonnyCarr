@@ -303,30 +303,39 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
   // Success screen
   if (paymentStep === 'success' && purchasedTickets) {
     return (
-      <div className="text-center py-6 sm:py-8">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-4">
-          <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-brand-gold" />
+      <div className="text-center py-6 sm:py-8 bg-brand-cream-light rounded-xl border-2 border-brand-gold p-4 sm:p-6">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-brand-gold shadow-lg">
+          <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-brand-gold" />
         </div>
-        <h3 className="text-lg sm:text-xl font-bold text-brand-green-dark mb-2">
-          Purchase Successful!
+        <h3 className="text-xl sm:text-2xl font-bold text-brand-green-dark mb-2">
+          Tickets Secured!
         </h3>
         <p className="text-brand-green mb-4 text-sm sm:text-base">
-          Thank you {buyerName}! Your ticket numbers are:
+          Good luck, {buyerName}! You're in the draw for:
         </p>
+        <div className="bg-white rounded-xl border-2 border-brand-cream-border p-4 mb-6 max-w-sm mx-auto">
+          <p className="font-bold text-brand-green-dark text-lg">{raffle.title}</p>
+          <p className="text-sm text-brand-green mt-1">{raffle.tickets_sold} / {raffle.total_tickets} tickets sold</p>
+        </div>
+        <p className="text-sm text-brand-green-dark font-semibold mb-3">Your lucky numbers:</p>
         <div className="flex flex-wrap justify-center gap-2 mb-6 px-2">
           {purchasedTickets.map(num => (
             <span
               key={num}
-              className="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-brand-green text-brand-gold border border-brand-gold rounded-full font-bold text-base sm:text-lg"
+              className="inline-flex items-center px-4 py-2 bg-brand-green text-brand-gold border-2 border-brand-gold rounded-full font-bold text-lg shadow-md"
             >
               #{num}
             </span>
           ))}
         </div>
-        <p className="text-xs sm:text-sm text-brand-green mb-4">
-          A confirmation has been sent to {buyerEmail}
-        </p>
-        <Button onClick={resetForm} size="sm">
+        <div className="bg-brand-green/10 rounded-lg p-3 mb-4 max-w-sm mx-auto">
+          <p className="text-xs sm:text-sm text-brand-green-dark">
+            <strong>Confirmation sent to:</strong><br />
+            {buyerEmail}
+          </p>
+        </div>
+        <Button onClick={resetForm} className="w-full sm:w-auto">
+          <Ticket className="w-4 h-4 mr-2" />
           Buy More Tickets
         </Button>
       </div>

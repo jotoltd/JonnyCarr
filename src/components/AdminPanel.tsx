@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import emailjs from '@emailjs/browser';
 import { RaffleCard } from './RaffleCard';
 import { CreateRaffleForm } from './CreateRaffleForm';
 import { Button } from './Button';
@@ -7,6 +8,24 @@ import { SkillQuestionBank } from './SkillQuestionBank';
 import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllUsers, updateUser, deleteUser } from '../lib/api';
 import type { Raffle, Ticket, User } from '../types';
 import { RefreshCw, TicketCheck, AlertCircle, Loader2, X, LogOut, Key, CreditCard, Users } from 'lucide-react';
+
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
+
+async function sendWinnerEmail(params: {
+  winner_name: string;
+  winner_email: string;
+  raffle_title: string;
+  winning_ticket: string;
+  prize_description: string;
+}) {
+  if (!EMAILJS_SERVICE_ID || !EMAILJS_PUBLIC_KEY) return;
+  try {
+    await emailjs.send(EMAILJS_SERVICE_ID, 'winner_notification', params, EMAILJS_PUBLIC_KEY);
+  } catch {
+    // Silent fail — don't block the draw
+  }
+}
 
 interface AdminPanelProps {
   onLogout: () => void;
@@ -205,6 +224,18 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
     try {
       setDrawError('');
       await drawWinner(raffleToDraw.id, winningNumber);
+      
+      // Send winner notification email
+      if (winningTicket) {
+        await sendWinnerEmail({
+          winner_name: winningTicket.buyer_name,
+          winner_email: winningTicket.buyer_email,
+          raffle_title: raffleToDraw.title,
+          winning_ticket: winningTicket.ticket_number.toString(),
+          prize_description: raffleToDraw.description || 'Handmade Jonny Carr Cue'
+        });
+      }
+      
       await loadRaffles();
       setShowDrawModal(false);
       setRaffleToDraw(null);
