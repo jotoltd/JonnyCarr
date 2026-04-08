@@ -232,6 +232,17 @@ export async function deactivateSkillQuestion(id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function getActiveRafflesUsingQuestion(questionId: string): Promise<Raffle[]> {
+  const { data, error } = await supabase
+    .from('raffles')
+    .select('*')
+    .eq('skill_question_id', questionId)
+    .eq('status', 'active');
+
+  if (error) throw error;
+  return data || [];
+}
+
 export async function validateSkillAnswer(questionId: string, answer: string): Promise<boolean> {
   const question = await getSkillQuestionById(questionId);
   if (!question) return false;

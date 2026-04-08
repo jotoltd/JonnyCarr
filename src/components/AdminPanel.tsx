@@ -3,7 +3,7 @@ import { RaffleCard } from './RaffleCard';
 import { CreateRaffleForm } from './CreateRaffleForm';
 import { Button } from './Button';
 import { PayPalSettingsModal } from './PayPalSettings';
-import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllSkillQuestions, updateSkillQuestion, deactivateSkillQuestion } from '../lib/api';
+import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllSkillQuestions, updateSkillQuestion, deactivateSkillQuestion, getActiveRafflesUsingQuestion } from '../lib/api';
 import type { Raffle, SkillQuestion, Ticket } from '../types';
 import { RefreshCw, TicketCheck, AlertCircle, Loader2, X, LogOut, Key, CreditCard } from 'lucide-react';
 
@@ -99,13 +99,21 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
   };
 
   const handleDeactivateQuestion = async (id: string) => {
-    if (!confirm('Deactivate this skill question? It will no longer be selectable for new raffles.')) {
-      return;
-    }
-
     try {
       setSkillQuestionError('');
       setSkillQuestionSuccess('');
+
+      const activeRaffles = await getActiveRafflesUsingQuestion(id);
+      if (activeRaffles.length > 0) {
+        const raffleTitles = activeRaffles.map(r => `"${r.title}"`).join(', ');
+        setSkillQuestionError(`Cannot deactivate: assigned to ${activeRaffles.length} active raffle(s): ${raffleTitles}. Close those raffles first.`);
+        return;
+      }
+
+      if (!confirm('Deactivate this skill question? It will no longer be selectable for new raffles.')) {
+        return;
+      }
+
       await deactivateSkillQuestion(id);
       await loadSkillQuestions();
       setSkillQuestionSuccess('Skill question deactivated');
