@@ -105,6 +105,25 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   return data;
 }
 
+export async function getAllUsers(): Promise<User[]> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, email, name, created_at')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('users')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+}
+
 // PayPal Settings operations
 export interface PayPalSettings {
   id?: string;

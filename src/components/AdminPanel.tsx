@@ -4,9 +4,9 @@ import { CreateRaffleForm } from './CreateRaffleForm';
 import { Button } from './Button';
 import { PayPalSettingsModal } from './PayPalSettings';
 import { SkillQuestionBank } from './SkillQuestionBank';
-import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner } from '../lib/api';
-import type { Raffle, Ticket } from '../types';
-import { RefreshCw, TicketCheck, AlertCircle, Loader2, X, LogOut, Key, CreditCard } from 'lucide-react';
+import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllUsers, updateUser, deleteUser } from '../lib/api';
+import type { Raffle, Ticket, User } from '../types';
+import { RefreshCw, TicketCheck, AlertCircle, Loader2, X, LogOut, Key, CreditCard, Users } from 'lucide-react';
 
 interface AdminPanelProps {
   onLogout: () => void;
@@ -32,6 +32,14 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState('');
 
   const [showPayPalSettings, setShowPayPalSettings] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  const [userError, setUserError] = useState('');
+  const [userSuccess, setUserSuccess] = useState('');
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editUserName, setEditUserName] = useState('');
+  const [editUserEmail, setEditUserEmail] = useState('');
+  const [editUserPassword, setEditUserPassword] = useState('');
 
   const loadRaffles = async () => {
     try {
@@ -45,9 +53,85 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
     }
   };
 
+  const loadUsers = async () => {
+    try {
+      setIsLoadingUsers(true);
+      setUserError('');
+      const data = await getAllUsers();
+      setUsers(data);
+    } catch (err) {
+      setUserError(err instanceof Error ? err.message : 'Failed to load users');
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
   useEffect(() => {
     loadRaffles();
+    loadUsers();
   }, []);
+
+  const handleStartEditUser = (user: User) => {
+    setEditingUserId(user.id);
+    setEditUserName(user.name);
+    setEditUserEmail(user.email);
+    setEditUserPassword('');
+    setUserError('');
+    setUserSuccess('');
+  };
+
+  const handleCancelEditUser = () => {
+    setEditingUserId(null);
+    setEditUserName('');
+    setEditUserEmail('');
+    setEditUserPassword('');
+  };
+
+  const handleSaveUser = async (id: string) => {
+    if (!editUserName.trim() || !editUserEmail.trim()) {
+      setUserError('Name and email are required');
+      return;
+    }
+
+    try {
+      setUserError('');
+      setUserSuccess('');
+      await updateUser(id, {
+        name: editUserName.trim(),
+        email: editUserEmail.trim(),
+        ...(editUserPassword.trim() ? { password: editUserPassword.trim() } : {}),
+      });
+      await loadUsers();
+      setEditingUserId(null);
+      setEditUserName('');
+      setEditUserEmail('');
+      setEditUserPassword('');
+      setUserSuccess('User updated');
+    } catch (err) {
+      setUserError(err instanceof Error ? err.message : 'Failed to update user');
+    }
+  };
+
+  const handleDeleteUser = async (user: User) => {
+    if (user.name === 'Jonathan') {
+      setUserError('The main admin user cannot be deleted');
+      return;
+    }
+
+    if (!confirm(`Delete user ${user.email}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setUserError('');
+      setUserSuccess('');
+      await deleteUser(user.id);
+      await loadUsers();
+      setUserSuccess('User deleted');
+    } catch (err) {
+      setUserError(err instanceof Error ? err.message : 'Failed to delete user');
+    }
+  };
 
   const handleChangePassword = (e: React.FormEvent) => {
     e.preventDefault();
@@ -271,6 +355,107 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       <CreateRaffleForm onSuccess={loadRaffles} />
 
       <SkillQuestionBank />
+
+      <div className="bg-brand-cream-light rounded-xl border-2 border-brand-cream-border p-4 sm:p-6 space-y-4">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <h3 className="text-lg sm:text-xl font-bold text-brand-green-dark flex items-center gap-2">
+              <Users className="w-5 h-5 text-brand-gold" />
+              User Management
+            </h3>
+            <p className="text-sm text-brand-green">View and manage all registered users</p>
+          </div>
+          <Button variant="secondary" size="sm" onClick={loadUsers}>
+            <RefreshCw className="w-4 h-4 mr-1.5" />
+            Refresh
+          </Button>
+        </div>
+
+        {userError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
+            {userError}
+          </div>
+        )}
+        {userSuccess && (
+          <div className="bg-brand-green-muted border border-brand-green rounded-lg p-3 text-brand-green-dark text-sm">
+            {userSuccess}
+          </div>
+        )}
+
+        {isLoadingUsers ? (
+          <div className="flex items-center gap-2 text-sm text-brand-green">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Loading users...
+          </div>
+        ) : users.length === 0 ? (
+          <p className="text-sm text-brand-green">No users found.</p>
+        ) : (
+          <div className="space-y-3 max-h-[480px] overflow-y-auto">
+            {users.map((user) => {
+              const isEditing = editingUserId === user.id;
+
+              return (
+                <div key={user.id} className="bg-white rounded-lg border border-brand-cream-border p-4 space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <p className="font-semibold text-brand-green-dark">{user.name}</p>
+                      <p className="text-sm text-brand-green break-all">{user.email}</p>
+                      <p className="text-xs text-brand-green mt-1">Joined {new Date(user.created_at).toLocaleString()}</p>
+                    </div>
+                    {!isEditing && (
+                      <div className="flex gap-2 flex-wrap justify-end">
+                        <Button size="sm" variant="secondary" onClick={() => handleStartEditUser(user)}>
+                          Edit
+                        </Button>
+                        <Button size="sm" variant="danger" onClick={() => handleDeleteUser(user)}>
+                          Delete
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {isEditing && (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-brand-green-dark mb-1">Name</label>
+                        <input
+                          type="text"
+                          value={editUserName}
+                          onChange={(e) => setEditUserName(e.target.value)}
+                          className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-brand-green-dark mb-1">Email</label>
+                        <input
+                          type="email"
+                          value={editUserEmail}
+                          onChange={(e) => setEditUserEmail(e.target.value)}
+                          className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-brand-green-dark mb-1">New Password (optional)</label>
+                        <input
+                          type="password"
+                          value={editUserPassword}
+                          onChange={(e) => setEditUserPassword(e.target.value)}
+                          className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
+                          placeholder="Leave blank to keep existing password"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => handleSaveUser(user.id)}>Save</Button>
+                        <Button size="sm" variant="secondary" onClick={handleCancelEditUser}>Cancel</Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 text-red-700 flex items-center gap-2 text-sm" role="alert">
