@@ -7,6 +7,7 @@ import { MyTickets } from './components/MyTickets';
 import { CountdownTimer } from './components/CountdownTimer';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { HowToPlay } from './components/HowToPlay';
+import { TermsConditions } from './components/TermsConditions';
 import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
 import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2 } from 'lucide-react';
@@ -25,6 +26,7 @@ function App() {
   const [showAccountSettings, setShowAccountSettings] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   // Restore session from localStorage on mount
   useEffect(() => {
@@ -499,18 +501,30 @@ function App() {
         <HowToPlay onClose={() => setShowHowToPlay(false)} />
       )}
 
+      {/* Terms & Conditions Modal */}
+      {showTerms && (
+        <TermsConditions onClose={() => setShowTerms(false)} />
+      )}
+
       {/* Footer */}
       <footer className="bg-brand-green border-t-4 border-brand-gold mt-8 sm:mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="flex flex-col items-center gap-3">
             <img src={LOGO_SRC} alt="Jonny Carr Cues" className="h-12 w-auto object-contain opacity-90" />
             <p className="text-brand-cream text-sm">&copy; {new Date().getFullYear()} Jonny Carr Cues Hand Made. All rights reserved.</p>
-            <div className="flex gap-4 text-sm">
+            <div className="flex gap-4 text-sm flex-wrap justify-center">
               <button
                 onClick={() => setShowHowToPlay(true)}
                 className="text-brand-cream hover:text-brand-gold transition-colors underline underline-offset-2"
               >
                 How to Play
+              </button>
+              <span className="text-brand-cream/50">|</span>
+              <button
+                onClick={() => setShowTerms(true)}
+                className="text-brand-cream hover:text-brand-gold transition-colors underline underline-offset-2"
+              >
+                Terms & Conditions
               </button>
               <span className="text-brand-cream/50">|</span>
               <button
