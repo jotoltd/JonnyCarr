@@ -3,6 +3,7 @@ import { RaffleCard } from './components/RaffleCard';
 import { AdminPanel } from './components/AdminPanel';
 import { UserAuth } from './components/UserAuth';
 import { AccountSettings } from './components/AccountSettings';
+import { MyTickets } from './components/MyTickets';
 import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
 import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings } from 'lucide-react';
@@ -11,7 +12,7 @@ import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings } fr
 const ADMIN_USERNAME = 'Jonathan';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'raffles' | 'admin' | 'auth'>('raffles');
+  const [activeTab, setActiveTab] = useState<'raffles' | 'tickets' | 'admin' | 'auth'>('raffles');
   const [raffles, setRaffles] = useState<Raffle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -68,7 +69,7 @@ function App() {
     localStorage.setItem('session_email', updated.email);
   };
 
-  const handleTabChange = (tab: 'raffles' | 'admin' | 'auth') => {
+  const handleTabChange = (tab: 'raffles' | 'tickets' | 'admin' | 'auth') => {
     setActiveTab(tab);
     setMobileMenuOpen(false);
   };
@@ -102,6 +103,22 @@ function App() {
                   Raffles
                 </span>
               </button>
+
+              {user && (
+                <button
+                  onClick={() => handleTabChange('tickets')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
+                    activeTab === 'tickets'
+                      ? 'bg-brand-gold text-brand-green-dark'
+                      : 'text-brand-cream hover:bg-brand-green-light'
+                  }`}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Users className="w-4 h-4" />
+                    My Tickets
+                  </span>
+                </button>
+              )}
               
               {isAdmin && (
                 <button
@@ -180,6 +197,20 @@ function App() {
                 <Ticket className="w-5 h-5" />
                 Raffles
               </button>
+
+              {user && (
+                <button
+                  onClick={() => handleTabChange('tickets')}
+                  className={`w-full px-4 py-3 rounded-lg font-medium transition-colors flex items-center gap-3 ${
+                    activeTab === 'tickets'
+                      ? 'bg-brand-gold text-brand-green-dark'
+                      : 'text-brand-cream hover:bg-brand-green-light'
+                  }`}
+                >
+                  <Users className="w-5 h-5" />
+                  My Tickets
+                </button>
+              )}
               
               {isAdmin && (
                 <button
@@ -309,6 +340,10 @@ function App() {
         
         {activeTab === 'auth' && (
           <UserAuth onLogin={handleLogin} />
+        )}
+
+        {activeTab === 'tickets' && user && (
+          <MyTickets user={user} />
         )}
         
         {activeTab === 'admin' && isAdmin && (

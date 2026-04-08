@@ -1,9 +1,30 @@
 import { useState, useEffect } from 'react';
+import emailjs from '@emailjs/browser';
 import type { Raffle } from '../types';
 import { Button } from './Button';
 import { Input } from './Input';
 import { purchaseTickets, getPayPalSettingsDB, type PayPalSettings } from '../lib/api';
 import { Ticket, CheckCircle, Loader2, CreditCard, AlertCircle } from 'lucide-react';
+
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '';
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
+
+async function sendConfirmationEmail(params: {
+  buyer_name: string;
+  buyer_email: string;
+  raffle_title: string;
+  ticket_numbers: string;
+  quantity: number;
+  total_price: string;
+}) {
+  if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) return;
+  try {
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params, EMAILJS_PUBLIC_KEY);
+  } catch {
+    // Silent fail — don't block the purchase
+  }
+}
 
 interface TicketPurchaseProps {
   raffle: Raffle;
@@ -110,16 +131,26 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
     setError('');
     
     try {
+      const email = orderData.payer.email_address || buyerEmail;
       const tickets = await purchaseTickets(
         raffle.id,
         buyerName,
-        orderData.payer.email_address || buyerEmail,
+        email,
         buyerPhone || null,
         quantity
       );
-      setPurchasedTickets(tickets.map(t => t.ticket_number));
+      const nums = tickets.map(t => t.ticket_number);
+      setPurchasedTickets(nums);
       setPaymentStep('success');
       onSuccess();
+      await sendConfirmationEmail({
+        buyer_name: buyerName,
+        buyer_email: email,
+        raffle_title: raffle.title,
+        ticket_numbers: nums.map(n => `#${n}`).join(', '),
+        quantity,
+        total_price: `£${totalPrice.toFixed(2)}`,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to allocate tickets after payment');
       setPaymentStep('form');
@@ -161,9 +192,18 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
         buyerPhone || null,
         quantity
       );
-      setPurchasedTickets(tickets.map(t => t.ticket_number));
+      const nums = tickets.map(t => t.ticket_number);
+      setPurchasedTickets(nums);
       setPaymentStep('success');
       onSuccess();
+      await sendConfirmationEmail({
+        buyer_name: buyerName,
+        buyer_email: buyerEmail,
+        raffle_title: raffle.title,
+        ticket_numbers: nums.map(n => `#${n}`).join(', '),
+        quantity,
+        total_price: `£${totalPrice.toFixed(2)}`,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to purchase tickets');
     } finally {
@@ -185,27 +225,29 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
   if (paymentStep === 'success' && purchasedTickets) {
     return (
       <div className="text-center py-6 sm:py-8">
-        <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-green-500 mx-auto mb-4" />
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-4">
+          <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-brand-gold" />
+        </div>
+        <h3 className="text-lg sm:text-xl font-bold text-brand-green-dark mb-2">
           Purchase Successful!
         </h3>
-        <p className="text-gray-600 mb-4 text-sm sm:text-base">
+        <p className="text-brand-green mb-4 text-sm sm:text-base">
           Thank you {buyerName}! Your ticket numbers are:
         </p>
         <div className="flex flex-wrap justify-center gap-2 mb-6 px-2">
           {purchasedTickets.map(num => (
             <span
               key={num}
-              className="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-indigo-100 text-indigo-800 rounded-full font-semibold text-base sm:text-lg"
+              className="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-brand-green text-brand-gold border border-brand-gold rounded-full font-bold text-base sm:text-lg"
             >
               #{num}
             </span>
           ))}
         </div>
-        <p className="text-xs sm:text-sm text-gray-500 mb-4">
+        <p className="text-xs sm:text-sm text-brand-green mb-4">
           A confirmation has been sent to {buyerEmail}
         </p>
-        <Button onClick={resetForm} size="sm" className="sm:size-default">
+        <Button onClick={resetForm} size="sm">
           Buy More Tickets
         </Button>
       </div>
@@ -216,15 +258,15 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
   if (paymentStep === 'payment' && isPayPalEnabled) {
     return (
       <div className="space-y-4">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-brand-green rounded-lg p-4 border border-brand-gold">
           <div className="flex items-center gap-2 mb-3">
-            <CreditCard className="w-5 h-5 text-blue-600" />
-            <h3 className="font-semibold text-blue-900">Complete Payment</h3>
+            <CreditCard className="w-5 h-5 text-brand-gold" />
+            <h3 className="font-semibold text-brand-cream">Complete Payment</h3>
           </div>
-          <div className="text-sm text-blue-800 space-y-1">
-            <p><strong>Raffle:</strong> {raffle.title}</p>
-            <p><strong>Tickets:</strong> {quantity}</p>
-            <p><strong>Total:</strong> £{totalPrice.toFixed(2)}</p>
+          <div className="text-sm text-brand-cream-dark space-y-1">
+            <p><strong className="text-brand-gold">Raffle:</strong> {raffle.title}</p>
+            <p><strong className="text-brand-gold">Tickets:</strong> {quantity}</p>
+            <p><strong className="text-brand-gold">Total:</strong> £{totalPrice.toFixed(2)}</p>
           </div>
         </div>
 
@@ -238,8 +280,8 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
         <div id="paypal-button-container" className="min-h-[150px]">
           {!paypalLoaded && (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-              <span className="ml-2 text-gray-600">Loading PayPal...</span>
+              <Loader2 className="w-8 h-8 animate-spin text-brand-green" />
+              <span className="ml-2 text-brand-green">Loading PayPal...</span>
             </div>
           )}
         </div>
@@ -259,23 +301,23 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
   // Form step (default)
   return (
     <form onSubmit={handleFormSubmit} className="space-y-4">
-      <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4">
+      <div className="bg-brand-cream rounded-lg p-3 sm:p-4 mb-4 border border-brand-cream-border">
         <div className="flex items-center justify-between mb-2 text-sm">
-          <span className="text-gray-600">Price per ticket:</span>
-          <span className="font-semibold">£{raffle.price_per_ticket}</span>
+          <span className="text-brand-green">Price per ticket:</span>
+          <span className="font-semibold text-brand-green-dark">£{raffle.price_per_ticket}</span>
         </div>
         <div className="flex items-center justify-between mb-2 text-sm">
-          <span className="text-gray-600">Available tickets:</span>
-          <span className="font-semibold">{availableTickets}</span>
+          <span className="text-brand-green">Available tickets:</span>
+          <span className="font-semibold text-brand-green-dark">{availableTickets}</span>
         </div>
-        <div className="flex items-center justify-between pt-2 border-t">
-          <span className="text-gray-900 font-medium">Total:</span>
-          <span className="text-lg sm:text-xl font-bold text-indigo-600">
+        <div className="flex items-center justify-between pt-2 border-t border-brand-cream-border">
+          <span className="text-brand-green-dark font-medium">Total:</span>
+          <span className="text-lg sm:text-xl font-bold text-brand-gold">
             {isPayPalEnabled ? `£${totalPrice.toFixed(2)}` : 'FREE'}
           </span>
         </div>
         {isPayPalEnabled && (
-          <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+          <p className="text-xs text-brand-green mt-2 flex items-center gap-1">
             <CreditCard className="w-3 h-3" />
             Payment required via PayPal
           </p>
@@ -289,23 +331,23 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-brand-green-dark mb-2">
           Number of Tickets
         </label>
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-semibold"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-brand-cream-dark hover:bg-brand-cream-border border border-brand-cream-border flex items-center justify-center text-brand-green-dark font-bold text-lg"
             disabled={quantity <= 1}
           >
             -
           </button>
-          <span className="text-lg sm:text-xl font-semibold w-10 sm:w-12 text-center">{quantity}</span>
+          <span className="text-lg sm:text-xl font-bold w-10 sm:w-12 text-center text-brand-green-dark">{quantity}</span>
           <button
             type="button"
             onClick={() => setQuantity(Math.min(availableTickets, quantity + 1))}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-semibold"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-brand-cream-dark hover:bg-brand-cream-border border border-brand-cream-border flex items-center justify-center text-brand-green-dark font-bold text-lg"
             disabled={quantity >= availableTickets}
           >
             +

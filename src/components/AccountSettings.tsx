@@ -85,25 +85,26 @@ export function AccountSettings({ user, onUpdate, onClose }: AccountSettingsProp
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
+      <div className="bg-brand-cream-light rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto border-2 border-brand-cream-border">
+        <div className="h-1 bg-brand-gold" />
+        <div className="p-4 sm:p-6 border-b border-brand-cream-border flex items-center justify-between">
           <div>
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900">Account Settings</h3>
-            <p className="text-sm text-gray-500 mt-0.5">Manage your profile and password</p>
+            <h3 className="text-lg sm:text-xl font-bold text-brand-green-dark">Account Settings</h3>
+            <p className="text-sm text-brand-green mt-0.5">Manage your profile and password</p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 flex-shrink-0">
+          <button onClick={onClose} className="text-brand-green hover:text-brand-green-dark flex-shrink-0">
             <X className="w-6 h-6" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-100">
+        <div className="flex border-b border-brand-cream-border">
           <button
             onClick={() => setActiveTab('details')}
             className={`flex-1 px-4 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
               activeTab === 'details'
-                ? 'border-b-2 border-indigo-600 text-indigo-600'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-brand-gold text-brand-green-dark'
+                : 'text-brand-green hover:text-brand-green-dark'
             }`}
           >
             <UserIcon className="w-4 h-4" />
@@ -113,8 +114,8 @@ export function AccountSettings({ user, onUpdate, onClose }: AccountSettingsProp
             onClick={() => setActiveTab('password')}
             className={`flex-1 px-4 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
               activeTab === 'password'
-                ? 'border-b-2 border-indigo-600 text-indigo-600'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-brand-gold text-brand-green-dark'
+                : 'text-brand-green hover:text-brand-green-dark'
             }`}
           >
             <Lock className="w-4 h-4" />
@@ -132,7 +133,7 @@ export function AccountSettings({ user, onUpdate, onClose }: AccountSettingsProp
                 </div>
               )}
               {detailsSuccess && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-green-700 text-sm flex items-center gap-2">
+                <div className="bg-brand-green-muted border border-brand-green rounded-lg p-3 text-brand-green-dark text-sm flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 flex-shrink-0" />
                   <span>{detailsSuccess}</span>
                 </div>
@@ -175,7 +176,7 @@ export function AccountSettings({ user, onUpdate, onClose }: AccountSettingsProp
                 </div>
               )}
               {passwordSuccess && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-green-700 text-sm flex items-center gap-2">
+                <div className="bg-brand-green-muted border border-brand-green rounded-lg p-3 text-brand-green-dark text-sm flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 flex-shrink-0" />
                   <span>{passwordSuccess}</span>
                 </div>

@@ -129,8 +129,8 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Admin Panel</h2>
-          <p className="text-gray-600 text-sm sm:text-base">Manage raffles and view ticket sales</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-brand-green-dark">Admin Panel</h2>
+          <p className="text-brand-green text-sm sm:text-base">Manage raffles and view ticket sales</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="secondary" onClick={() => setShowPayPalSettings(true)} className="text-sm">
@@ -163,15 +163,17 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       {/* Change Password Modal */}
       {showChangePassword && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+          <div className="bg-brand-cream-light rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto border-2 border-brand-cream-border">
+            <div className="h-1 bg-brand-gold" />
+            <div className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
-                <Key className="w-5 h-5" />
+              <h3 className="text-lg sm:text-xl font-bold text-brand-green-dark flex items-center gap-2">
+                <Key className="w-5 h-5 text-brand-gold" />
                 Change Password
               </h3>
               <button
                 onClick={() => setShowChangePassword(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-brand-green hover:text-brand-green-dark"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -184,7 +186,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                 </div>
               )}
               {passwordChangeSuccess && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-green-700 text-sm">
+                <div className="bg-brand-green-muted border border-brand-green rounded-lg p-3 text-brand-green-dark text-sm">
                   {passwordChangeSuccess}
                 </div>
               )}
@@ -197,20 +199,20 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                   type="password"
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
-                  className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 py-2 border text-sm"
+                  className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
                   placeholder="Enter new password"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-brand-green-dark mb-1">
                   Confirm New Password
                 </label>
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
-                  className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 py-2 border text-sm"
+                  className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
                   placeholder="Confirm new password"
                 />
               </div>
@@ -229,6 +231,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                 </Button>
               </div>
             </form>
+            </div>
           </div>
         </div>
       )}
@@ -236,7 +239,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       <CreateRaffleForm onSuccess={loadRaffles} />
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 text-red-700 flex items-center gap-2 text-sm">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 text-red-700 flex items-center gap-2 text-sm" role="alert">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           <span className="break-words">{error}</span>
         </div>
@@ -244,14 +247,14 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
 
       {isLoading ? (
         <div className="text-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-600" />
-          <p className="text-gray-600 mt-2 text-sm">Loading raffles...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-brand-green" />
+          <p className="text-brand-green mt-2 text-sm">Loading raffles...</p>
         </div>
       ) : raffles.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl border border-gray-100">
-          <TicketCheck className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900">No Raffles Yet</h3>
-          <p className="text-gray-600 text-sm">Create your first raffle using the button above</p>
+        <div className="text-center py-12 bg-brand-cream-light rounded-xl border-2 border-brand-cream-border">
+          <TicketCheck className="w-12 h-12 text-brand-cream-border mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-brand-green-dark">No Raffles Yet</h3>
+          <p className="text-brand-green text-sm">Create your first raffle using the button above</p>
         </div>
       ) : (
         <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
@@ -282,38 +285,39 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       {/* Tickets Modal */}
       {showTickets && selectedRaffle && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[85vh] overflow-hidden">
-            <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
+          <div className="bg-brand-cream-light rounded-xl shadow-xl max-w-2xl w-full max-h-[85vh] overflow-hidden border-2 border-brand-cream-border">
+            <div className="h-1 bg-brand-gold" />
+            <div className="p-4 sm:p-6 border-b border-brand-cream-border flex items-center justify-between">
               <div className="min-w-0">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 truncate">{selectedRaffle.title}</h3>
-                <p className="text-xs sm:text-sm text-gray-600">{raffleTickets.length} tickets sold</p>
+                <h3 className="text-lg sm:text-xl font-bold text-brand-green-dark truncate">{selectedRaffle.title}</h3>
+                <p className="text-xs sm:text-sm text-brand-green">{raffleTickets.length} tickets sold</p>
               </div>
               <button
                 onClick={() => setShowTickets(false)}
-                className="text-gray-400 hover:text-gray-600 flex-shrink-0 ml-2"
+                className="text-brand-green hover:text-brand-green-dark flex-shrink-0 ml-2"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
             <div className="overflow-y-auto max-h-[calc(85vh-80px)] p-3 sm:p-6">
               {raffleTickets.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">No tickets sold yet</p>
+                <p className="text-center text-brand-green py-8">No tickets sold yet</p>
               ) : (
                 <div className="overflow-x-auto -mx-3 px-3">
                   <table className="w-full min-w-[400px]">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-brand-cream">
                       <tr>
-                        <th className="px-2 sm:px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-700">Ticket #</th>
-                        <th className="px-2 sm:px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-700">Buyer</th>
-                        <th className="px-2 sm:px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-700">Email</th>
+                        <th className="px-2 sm:px-4 py-2 text-left text-xs sm:text-sm font-medium text-brand-green-dark">Ticket #</th>
+                        <th className="px-2 sm:px-4 py-2 text-left text-xs sm:text-sm font-medium text-brand-green-dark">Buyer</th>
+                        <th className="px-2 sm:px-4 py-2 text-left text-xs sm:text-sm font-medium text-brand-green-dark">Email</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-brand-cream-border">
                       {raffleTickets.map(ticket => (
                         <tr key={ticket.id}>
-                          <td className="px-2 sm:px-4 py-2 sm:py-3 font-semibold text-indigo-600 text-sm">#{ticket.ticket_number}</td>
-                          <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-900 text-sm">{ticket.buyer_name}</td>
-                          <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-600 text-sm break-all">{ticket.buyer_email}</td>
+                          <td className="px-2 sm:px-4 py-2 sm:py-3 font-semibold text-brand-gold text-sm">#{ticket.ticket_number}</td>
+                          <td className="px-2 sm:px-4 py-2 sm:py-3 text-brand-green-dark text-sm">{ticket.buyer_name}</td>
+                          <td className="px-2 sm:px-4 py-2 sm:py-3 text-brand-green text-sm break-all">{ticket.buyer_email}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -328,25 +332,28 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       {/* Draw Result Modal */}
       {drawResult && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-4 sm:p-8 text-center max-h-[90vh] overflow-y-auto">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <TicketCheck className="w-8 h-8 sm:w-10 sm:h-10 text-purple-600" />
+          <div className="bg-brand-cream-light rounded-xl shadow-xl max-w-md w-full text-center max-h-[90vh] overflow-y-auto border-2 border-brand-gold">
+            <div className="h-1 bg-brand-gold" />
+            <div className="p-4 sm:p-8">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-4">
+              <TicketCheck className="w-8 h-8 sm:w-10 sm:h-10 text-brand-gold" />
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Winner Drawn!</h3>
-            <div className="bg-purple-50 rounded-lg p-4 sm:p-6 mb-4">
-              <p className="text-xs sm:text-sm text-purple-700 mb-1 sm:mb-2">Winning Ticket Number</p>
-              <p className="text-4xl sm:text-5xl font-bold text-purple-900">#{drawResult.winningTicket}</p>
+            <h3 className="text-xl sm:text-2xl font-bold text-brand-green-dark mb-2">Winner Drawn!</h3>
+            <div className="bg-brand-green rounded-lg p-4 sm:p-6 mb-4 border border-brand-gold">
+              <p className="text-xs sm:text-sm text-brand-cream mb-1 sm:mb-2">Winning Ticket Number</p>
+              <p className="text-4xl sm:text-5xl font-bold text-brand-gold">#{drawResult.winningTicket}</p>
             </div>
             {drawResult.winner && (
-              <div className="text-left bg-gray-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-                <p className="text-xs sm:text-sm text-gray-600 mb-1">Winner:</p>
-                <p className="font-semibold text-gray-900 text-sm sm:text-base">{drawResult.winner.buyer_name}</p>
-                <p className="text-xs sm:text-sm text-gray-600 break-all">{drawResult.winner.buyer_email}</p>
+              <div className="text-left bg-brand-cream rounded-lg p-3 sm:p-4 mb-4 sm:mb-6 border border-brand-cream-border">
+                <p className="text-xs sm:text-sm text-brand-green mb-1">Winner:</p>
+                <p className="font-semibold text-brand-green-dark text-sm sm:text-base">{drawResult.winner.buyer_name}</p>
+                <p className="text-xs sm:text-sm text-brand-green break-all">{drawResult.winner.buyer_email}</p>
               </div>
             )}
             <Button onClick={() => setDrawResult(null)} className="w-full">
               Close
             </Button>
+            </div>
           </div>
         </div>
       )}

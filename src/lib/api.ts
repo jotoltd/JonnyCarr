@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import bcrypt from 'bcryptjs';
 import type { Raffle, Ticket, User } from '../types';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
@@ -17,10 +18,12 @@ export async function registerUser(email: string, password: string, name: string
   if (existing) {
     throw new Error('User already exists with this email');
   }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
   
   const { data, error } = await supabase
     .from('users')
-    .insert({ email, password, name })
+    .insert({ email, password: hashedPassword, name })
     .select('id, email, name, created_at')
     .single();
   
@@ -33,14 +36,31 @@ export async function loginUser(email: string, password: string): Promise<User |
     .from('users')
     .select('id, email, name, created_at, password')
     .eq('email', email)
-    .eq('password', password)
     .single();
   
   if (error || !data) {
     throw new Error('Invalid email or password');
   }
+
+  const storedPassword: string = data.password;
+  let passwordMatch = false;
+
+  // Check if stored password is a bcrypt hash
+  if (storedPassword.startsWith('$2')) {
+    passwordMatch = await bcrypt.compare(password, storedPassword);
+  } else {
+    // Plain text (legacy) — compare and re-hash on success
+    passwordMatch = storedPassword === password;
+    if (passwordMatch) {
+      const hashed = await bcrypt.hash(password, 10);
+      await supabase.from('users').update({ password: hashed }).eq('id', data.id);
+    }
+  }
+
+  if (!passwordMatch) {
+    throw new Error('Invalid email or password');
+  }
   
-  // Don't return password to client
   const { password: _, ...user } = data;
   return user;
 }
@@ -49,7 +69,9 @@ export async function updateUser(
   id: string,
   updates: { name?: string; email?: string; password?: string }
 ): Promise<User> {
-  // If email is changing, check it's not already taken
+  if (updates.password) {
+    updates = { ...updates, password: await bcrypt.hash(updates.password, 10) };
+  }
   if (updates.email) {
     const { data: existing } = await supabase
       .from('users')
@@ -195,6 +217,21 @@ export async function deleteRaffle(id: string): Promise<void> {
 }
 
 // Ticket operations
+export async function getTicketsByBuyerEmail(email: string): Promise<(Ticket & { raffle_title: string; raffle_status: string })[]> {
+  const { data, error } = await supabase
+    .from('tickets')
+    .select('*, raffles(title, status)')
+    .eq('buyer_email', email)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return (data || []).map((t: Ticket & { raffles: { title: string; status: string } }) => ({
+    ...t,
+    raffle_title: t.raffles?.title ?? 'Unknown Raffle',
+    raffle_status: t.raffles?.status ?? 'unknown',
+  }));
+}
+
 export async function getTicketsByRaffleId(raffleId: string): Promise<Ticket[]> {
   const { data, error } = await supabase
     .from('tickets')
