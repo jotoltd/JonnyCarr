@@ -6,6 +6,7 @@ import { AccountSettings } from './components/AccountSettings';
 import { MyTickets } from './components/MyTickets';
 import { CountdownTimer } from './components/CountdownTimer';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
+import { HowToPlay } from './components/HowToPlay';
 import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
 import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2 } from 'lucide-react';
@@ -23,6 +24,7 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showAccountSettings, setShowAccountSettings] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
 
   // Restore session from localStorage on mount
   useEffect(() => {
@@ -492,6 +494,11 @@ function App() {
         <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
       )}
 
+      {/* How To Play Modal */}
+      {showHowToPlay && (
+        <HowToPlay onClose={() => setShowHowToPlay(false)} />
+      )}
+
       {/* Footer */}
       <footer className="bg-brand-green border-t-4 border-brand-gold mt-8 sm:mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -499,6 +506,13 @@ function App() {
             <img src={LOGO_SRC} alt="Jonny Carr Cues" className="h-12 w-auto object-contain opacity-90" />
             <p className="text-brand-cream text-sm">&copy; {new Date().getFullYear()} Jonny Carr Cues Hand Made. All rights reserved.</p>
             <div className="flex gap-4 text-sm">
+              <button
+                onClick={() => setShowHowToPlay(true)}
+                className="text-brand-cream hover:text-brand-gold transition-colors underline underline-offset-2"
+              >
+                How to Play
+              </button>
+              <span className="text-brand-cream/50">|</span>
               <button
                 onClick={() => setShowPrivacyPolicy(true)}
                 className="text-brand-cream hover:text-brand-gold transition-colors underline underline-offset-2"
