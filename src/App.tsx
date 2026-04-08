@@ -6,7 +6,7 @@ import { AccountSettings } from './components/AccountSettings';
 import { MyTickets } from './components/MyTickets';
 import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
-import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings } from 'lucide-react';
+import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling } from 'lucide-react';
 
 // Admin user name
 const ADMIN_USERNAME = 'Jonathan';
@@ -36,6 +36,15 @@ function App() {
   const isAdmin = user?.name === ADMIN_USERNAME;
   const featuredRaffle = raffles[0] || null;
   const otherRaffles = raffles.slice(1);
+  const featuredAvailableTickets = featuredRaffle
+    ? featuredRaffle.total_tickets - featuredRaffle.tickets_sold
+    : 0;
+  const featuredProgress = featuredRaffle
+    ? Math.round((featuredRaffle.tickets_sold / featuredRaffle.total_tickets) * 100)
+    : 0;
+  const featuredRevenue = featuredRaffle
+    ? (featuredRaffle.total_tickets * featuredRaffle.price_per_ticket).toFixed(2)
+    : '0.00';
 
   const loadRaffles = async () => {
     try {
@@ -344,6 +353,41 @@ function App() {
                         <h3 className="text-2xl sm:text-3xl font-bold text-brand-green-dark">Current Live Draw</h3>
                       </div>
                       <p className="text-sm text-brand-green">Everything is focused on this raffle.</p>
+                    </div>
+                    <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
+                      <div className="bg-brand-cream-light border-2 border-brand-cream-border rounded-xl p-4">
+                        <p className="text-xs uppercase tracking-[0.16em] text-brand-gold font-semibold mb-1">Tickets left</p>
+                        <div className="flex items-end justify-between gap-3">
+                          <div>
+                            <p className="text-3xl font-bold text-brand-green-dark">{featuredAvailableTickets}</p>
+                            <p className="text-sm text-brand-green">remaining from {featuredRaffle.total_tickets}</p>
+                          </div>
+                          <Ticket className="w-6 h-6 text-brand-gold flex-shrink-0" />
+                        </div>
+                      </div>
+                      <div className="bg-brand-cream-light border-2 border-brand-cream-border rounded-xl p-4">
+                        <p className="text-xs uppercase tracking-[0.16em] text-brand-gold font-semibold mb-1">Ticket price</p>
+                        <div className="flex items-end justify-between gap-3">
+                          <div>
+                            <p className="text-3xl font-bold text-brand-green-dark">£{featuredRaffle.price_per_ticket}</p>
+                            <p className="text-sm text-brand-green">£{featuredRevenue} total prize pot</p>
+                          </div>
+                          <PoundSterling className="w-6 h-6 text-brand-gold flex-shrink-0" />
+                        </div>
+                      </div>
+                      <div className="bg-brand-cream-light border-2 border-brand-cream-border rounded-xl p-4">
+                        <p className="text-xs uppercase tracking-[0.16em] text-brand-gold font-semibold mb-1">Live progress</p>
+                        <div className="flex items-end justify-between gap-3 mb-3">
+                          <div>
+                            <p className="text-3xl font-bold text-brand-green-dark">{featuredProgress}%</p>
+                            <p className="text-sm text-brand-green">{featuredRaffle.tickets_sold} tickets sold</p>
+                          </div>
+                          <Users className="w-6 h-6 text-brand-gold flex-shrink-0" />
+                        </div>
+                        <div className="w-full h-2 rounded-full bg-brand-cream-border overflow-hidden">
+                          <div className="h-full bg-brand-green rounded-full" style={{ width: `${featuredProgress}%` }} />
+                        </div>
+                      </div>
                     </div>
                     <div className="max-w-4xl mx-auto">
                       <RaffleCard
