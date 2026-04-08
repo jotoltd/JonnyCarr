@@ -38,6 +38,7 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
   const [isLoadingTickets, setIsLoadingTickets] = useState(true);
   const [skillQuestionPrompt, setSkillQuestionPrompt] = useState('');
   const [skillAnswer, setSkillAnswer] = useState('');
+  const [skillQuestionError, setSkillQuestionError] = useState('');
   const [isCheckingSkillAnswer, setIsCheckingSkillAnswer] = useState(false);
   const [buyerName, setBuyerName] = useState(user.name || '');
   const [buyerEmail, setBuyerEmail] = useState(user.email || '');
@@ -220,13 +221,16 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
       return;
     }
 
+    // Clear previous skill question error
+    setSkillQuestionError('');
+
     if (!raffle.skill_question_id || !skillQuestionPrompt) {
-      setError('This game is missing a configured skill question. Please contact admin.');
+      setSkillQuestionError('This raffle is missing a configured skill question. Please contact admin.');
       return;
     }
 
     if (!skillAnswer.trim()) {
-      setError('Please answer the skill question before buying tickets');
+      setSkillQuestionError('Please answer the skill question before buying tickets');
       return;
     }
 
@@ -235,7 +239,7 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
     setIsCheckingSkillAnswer(false);
 
     if (!isCorrect) {
-      setError('Incorrect answer. Please try again.');
+      setSkillQuestionError('Incorrect answer. Please try again.');
       return;
     }
 
@@ -472,9 +476,19 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
           type="text"
           required
           value={skillAnswer}
-          onChange={e => setSkillAnswer(e.target.value)}
+          onChange={e => {
+            setSkillAnswer(e.target.value);
+            setSkillQuestionError(''); // Clear error when user types
+          }}
           placeholder="Type your answer"
         />
+        {/* Skill Question Error - displayed right below input */}
+        {skillQuestionError && (
+          <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-700">{skillQuestionError}</p>
+          </div>
+        )}
       </div>
 
       <Input

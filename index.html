@@ -12,7 +12,7 @@
     </style>
   </head>
   <body>
-    <div id="loading">Loading Jonny Carr Cue...</div>
+    <div id="loading"></div>
     <div id="error"></div>
     <div id="root"></div>
     <script>
@@ -24,7 +24,7 @@
       };
       setTimeout(function() {
         if (!document.getElementById('root').innerHTML) {
-          document.getElementById('loading').innerHTML = 'Still loading... If this persists, check the console for errors.';
+          document.getElementById('loading').innerHTML = '<div style="padding:40px;text-align:center;color:#1B4D3E">Loading...</div>';
         }
       }, 3000);
     </script>
