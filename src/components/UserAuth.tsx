@@ -56,7 +56,7 @@ export function UserAuth({ onLogin }: UserAuthProps) {
         <div className="p-6 sm:p-8">
           <div className="text-center mb-6">
             <img
-              src="/excel_cues_logo.JPEG"
+              src="/logo.png"
               alt="Jonny Carr Cues"
               className="w-24 h-auto object-contain mx-auto mb-4"
             />
