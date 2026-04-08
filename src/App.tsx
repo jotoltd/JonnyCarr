@@ -5,6 +5,7 @@ import { UserAuth } from './components/UserAuth';
 import { AccountSettings } from './components/AccountSettings';
 import { MyTickets } from './components/MyTickets';
 import { CountdownTimer } from './components/CountdownTimer';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
 import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2 } from 'lucide-react';
@@ -21,6 +22,7 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showAccountSettings, setShowAccountSettings] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
   // Restore session from localStorage on mount
   useEffect(() => {
@@ -485,12 +487,25 @@ function App() {
         )}
       </main>
 
+      {/* Privacy Policy Modal */}
+      {showPrivacyPolicy && (
+        <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
+      )}
+
       {/* Footer */}
       <footer className="bg-brand-green border-t-4 border-brand-gold mt-8 sm:mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="flex flex-col items-center gap-3">
             <img src={LOGO_SRC} alt="Jonny Carr Cues" className="h-12 w-auto object-contain opacity-90" />
             <p className="text-brand-cream text-sm">&copy; {new Date().getFullYear()} Jonny Carr Cues Hand Made. All rights reserved.</p>
+            <div className="flex gap-4 text-sm">
+              <button
+                onClick={() => setShowPrivacyPolicy(true)}
+                className="text-brand-cream hover:text-brand-gold transition-colors underline underline-offset-2"
+              >
+                Privacy Policy
+              </button>
+            </div>
           </div>
         </div>
       </footer>
