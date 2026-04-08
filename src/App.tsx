@@ -280,28 +280,35 @@ function App() {
           <div className="space-y-6">
             {/* Hero Section */}
             <div className="bg-brand-green rounded-xl sm:rounded-2xl overflow-hidden border-2 border-brand-gold mb-6 sm:mb-8 shadow-lg">
-              <div className="px-6 sm:px-10 py-8 sm:py-10 flex flex-col sm:flex-row items-center gap-6">
-                <img
-                  src={LOGO_SRC}
-                  alt="Jonny Carr Cues"
-                  className="w-32 sm:w-40 h-auto object-contain flex-shrink-0"
-                />
-                <div>
+              <div className="px-6 sm:px-10 py-8 sm:py-10 grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 items-center">
+                <div className="text-center lg:text-left">
+                  <div className="inline-flex items-center rounded-full border border-brand-gold/40 bg-brand-green-light px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-brand-gold mb-4">
+                    Handmade cue raffles
+                  </div>
                   <h2 className="text-2xl sm:text-3xl font-bold text-brand-cream mb-2 font-serif">
                     Win a Handmade Jonny Carr Cue
                   </h2>
-                  <p className="text-brand-cream-dark text-base sm:text-lg mb-4">
+                  <p className="text-brand-cream-dark text-base sm:text-lg mb-6 max-w-2xl mx-auto lg:mx-0">
                     Enter our exclusive raffles for a chance to own a beautifully crafted, handmade snooker cue.
                   </p>
-                  <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm sm:text-base">
-                    <div className="flex items-center gap-2 text-brand-gold">
+                  <div className="flex flex-col sm:flex-row sm:flex-wrap items-center lg:items-start gap-3 sm:gap-4 text-sm sm:text-base">
+                    <div className="flex items-center gap-2 text-brand-gold bg-brand-green-light/60 rounded-lg px-4 py-3 border border-brand-gold/20">
                       <Ticket className="w-4 h-4 sm:w-5 sm:h-5" />
                       <span className="font-semibold">{raffles.length} Active Raffles</span>
                     </div>
-                    <div className="flex items-center gap-2 text-brand-gold">
+                    <div className="flex items-center gap-2 text-brand-gold bg-brand-green-light/60 rounded-lg px-4 py-3 border border-brand-gold/20">
                       <Users className="w-4 h-4 sm:w-5 sm:h-5" />
                       <span className="font-semibold">{raffles.reduce((acc, r) => acc + r.tickets_sold, 0)} Tickets Sold</span>
                     </div>
+                  </div>
+                </div>
+                <div className="flex justify-center lg:justify-end">
+                  <div className="w-full max-w-sm rounded-2xl bg-brand-cream/95 border border-brand-gold/40 shadow-2xl p-4 sm:p-6">
+                    <img
+                      src={LOGO_SRC}
+                      alt="Jonny Carr Cues"
+                      className="w-full max-h-[320px] object-contain"
+                    />
                   </div>
                 </div>
               </div>
