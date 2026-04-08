@@ -286,7 +286,18 @@ export async function getAllRaffles(): Promise<Raffle[]> {
     .from('raffles')
     .select('*')
     .order('created_at', { ascending: false });
-  
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getCompletedRaffles(): Promise<Raffle[]> {
+  const { data, error } = await supabase
+    .from('raffles')
+    .select('*')
+    .in('status', ['closed', 'drawn'])
+    .order('drawn_at', { ascending: false });
+
   if (error) throw error;
   return data || [];
 }

@@ -8,6 +8,7 @@ import { CountdownTimer } from './components/CountdownTimer';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { HowToPlay } from './components/HowToPlay';
 import { TermsConditions } from './components/TermsConditions';
+import { PastWinners } from './components/PastWinners';
 import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
 import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2 } from 'lucide-react';
@@ -17,7 +18,7 @@ const ADMIN_USERNAME = 'Jonathan';
 const LOGO_SRC = `${import.meta.env.BASE_URL}logo.png`;
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'raffles' | 'tickets' | 'admin' | 'auth'>('raffles');
+  const [activeTab, setActiveTab] = useState<'raffles' | 'tickets' | 'winners' | 'admin' | 'auth'>('raffles');
   const [raffles, setRaffles] = useState<Raffle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -85,7 +86,7 @@ function App() {
     localStorage.setItem('session_email', updated.email);
   };
 
-  const handleTabChange = (tab: 'raffles' | 'tickets' | 'admin' | 'auth') => {
+  const handleTabChange = (tab: 'raffles' | 'tickets' | 'winners' | 'admin' | 'auth') => {
     setActiveTab(tab);
     setMobileMenuOpen(false);
   };
@@ -117,6 +118,20 @@ function App() {
                 <span className="flex items-center gap-1.5">
                   <Ticket className="w-4 h-4" />
                   Raffles
+                </span>
+              </button>
+
+              <button
+                onClick={() => handleTabChange('winners')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
+                  activeTab === 'winners'
+                    ? 'bg-brand-gold text-brand-green-dark'
+                    : 'text-brand-cream hover:bg-brand-green-light'
+                }`}
+              >
+                <span className="flex items-center gap-1.5">
+                  <Users className="w-4 h-4" />
+                  Past Winners
                 </span>
               </button>
 
@@ -212,6 +227,18 @@ function App() {
               >
                 <Ticket className="w-5 h-5" />
                 Raffles
+              </button>
+
+              <button
+                onClick={() => handleTabChange('winners')}
+                className={`w-full px-4 py-3 rounded-lg font-medium transition-colors flex items-center gap-3 ${
+                  activeTab === 'winners'
+                    ? 'bg-brand-gold text-brand-green-dark'
+                    : 'text-brand-cream hover:bg-brand-green-light'
+                }`}
+              >
+                <Users className="w-5 h-5" />
+                Past Winners
               </button>
 
               {user && (
@@ -480,6 +507,10 @@ function App() {
         
         {activeTab === 'auth' && (
           <UserAuth onLogin={handleLogin} />
+        )}
+
+        {activeTab === 'winners' && (
+          <PastWinners />
         )}
 
         {activeTab === 'tickets' && user && (
