@@ -114,6 +114,14 @@ export interface PayPalSettings {
   updated_at?: string;
 }
 
+// Default sandbox credentials for immediate testing
+const DEFAULT_SANDBOX_SETTINGS: PayPalSettings = {
+  client_id: 'AcalknmOIPLrNFZ4tdptZtW83FqksWxh4zMBmyY9X8WtXu49h5LJEB2tujhlVJxiJhpM4rB_Z_K0pH9E',
+  business_email: 'sb-qza3m50402059@business.example.com',
+  mode: 'sandbox',
+  enabled: true,
+};
+
 export async function getPayPalSettingsDB(): Promise<PayPalSettings | null> {
   const { data, error } = await supabase
     .from('paypal_settings')
@@ -122,7 +130,10 @@ export async function getPayPalSettingsDB(): Promise<PayPalSettings | null> {
     .limit(1)
     .single();
   
-  if (error) return null;
+  // Return sandbox defaults if no settings in DB (app works out of the box)
+  if (error || !data) {
+    return DEFAULT_SANDBOX_SETTINGS;
+  }
   return data;
 }
 

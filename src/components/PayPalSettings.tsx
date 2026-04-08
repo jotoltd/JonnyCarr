@@ -9,12 +9,21 @@ interface PayPalSettingsModalProps {
 }
 
 export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProps) {
-  const [settings, setSettings] = useState<PayPalSettingsDB>({
-    client_id: '',
-    business_email: '',
+  const DEFAULT_SANDBOX_SETTINGS: PayPalSettingsDB = {
+    client_id: 'AcalknmOIPLrNFZ4tdptZtW83FqksWxh4zMBmyY9X8WtXu49h5LJEB2tujhlVJxiJhpM4rB_Z_K0pH9E',
+    business_email: 'sb-qza3m50402059@business.example.com',
     mode: 'sandbox',
-    enabled: false,
-  });
+    enabled: true,
+  };
+
+  const LIVE_SETTINGS: PayPalSettingsDB = {
+    client_id: 'AZOE6Bb490b4XNhEfiOPN0JNOZPxFkgA4FPmOEFC85V2QFFOEDCNox8ab0wHHsIvDNPGKuRl3tsWumN4',
+    business_email: 'jonny89carr@googlemail.com',
+    mode: 'live',
+    enabled: true,
+  };
+
+  const [settings, setSettings] = useState<PayPalSettingsDB>(DEFAULT_SANDBOX_SETTINGS);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -34,12 +43,25 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
       const dbSettings = await getPayPalSettingsDB();
       if (dbSettings) {
         setSettings(dbSettings);
+      } else {
+        // Pre-fill with sandbox defaults if no settings exist
+        setSettings(DEFAULT_SANDBOX_SETTINGS);
       }
     } catch (err) {
       console.error('Failed to load PayPal settings:', err);
+      // Fallback to sandbox defaults on error
+      setSettings(DEFAULT_SANDBOX_SETTINGS);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const applySandboxDefaults = () => {
+    setSettings(DEFAULT_SANDBOX_SETTINGS);
+  };
+
+  const applyLiveDefaults = () => {
+    setSettings(LIVE_SETTINGS);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -136,6 +158,23 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
                 </a>
               </span>
             </p>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={applySandboxDefaults}
+              className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors"
+            >
+              Use Sandbox Preset
+            </button>
+            <button
+              type="button"
+              onClick={applyLiveDefaults}
+              className="flex-1 px-3 py-2 bg-brand-green hover:bg-brand-green-dark rounded-lg text-sm font-medium text-brand-cream transition-colors"
+            >
+              Use Live Preset
+            </button>
           </div>
 
           <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
