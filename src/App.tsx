@@ -34,6 +34,8 @@ function App() {
 
   // No localStorage persistence - all user data in database only
   const isAdmin = user?.name === ADMIN_USERNAME;
+  const featuredRaffle = raffles[0] || null;
+  const otherRaffles = raffles.slice(1);
 
   const loadRaffles = async () => {
     try {
@@ -333,16 +335,46 @@ function App() {
                 <p className="text-brand-green text-sm sm:text-base">Check back soon for new raffles!</p>
               </div>
             ) : (
-              <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {raffles.map(raffle => (
-                  <RaffleCard
-                    key={raffle.id}
-                    raffle={raffle}
-                    user={user}
-                    onRequireLogin={() => handleTabChange('auth')}
-                    onRefresh={loadRaffles}
-                  />
-                ))}
+              <div className="space-y-6">
+                {featuredRaffle && (
+                  <section className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.2em] text-brand-gold font-semibold">Featured raffle</p>
+                        <h3 className="text-2xl sm:text-3xl font-bold text-brand-green-dark">Current Live Draw</h3>
+                      </div>
+                      <p className="text-sm text-brand-green">Everything is focused on this raffle.</p>
+                    </div>
+                    <div className="max-w-4xl mx-auto">
+                      <RaffleCard
+                        raffle={featuredRaffle}
+                        user={user}
+                        onRequireLogin={() => handleTabChange('auth')}
+                        onRefresh={loadRaffles}
+                      />
+                    </div>
+                  </section>
+                )}
+
+                {otherRaffles.length > 0 && (
+                  <section className="space-y-4">
+                    <div>
+                      <h4 className="text-lg sm:text-xl font-semibold text-brand-green-dark">Other Active Raffles</h4>
+                      <p className="text-sm text-brand-green">Secondary raffles are shown here when more than one is live.</p>
+                    </div>
+                    <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
+                      {otherRaffles.map(raffle => (
+                        <RaffleCard
+                          key={raffle.id}
+                          raffle={raffle}
+                          user={user}
+                          onRequireLogin={() => handleTabChange('auth')}
+                          onRefresh={loadRaffles}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                )}
               </div>
             )}
           </div>
