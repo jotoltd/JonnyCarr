@@ -160,6 +160,16 @@ export async function getSkillQuestions(): Promise<SkillQuestion[]> {
   return data || [];
 }
 
+export async function getAllSkillQuestions(): Promise<SkillQuestion[]> {
+  const { data, error } = await supabase
+    .from('skill_questions')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
 export async function getSkillQuestionById(id: string): Promise<SkillQuestion | null> {
   const { data, error } = await supabase
     .from('skill_questions')
@@ -187,6 +197,39 @@ export async function createSkillQuestion(question: {
 
   if (error) throw error;
   return data;
+}
+
+export async function updateSkillQuestion(
+  id: string,
+  updates: { prompt?: string; answer?: string }
+): Promise<SkillQuestion> {
+  const payload: { prompt?: string; answer?: string } = {};
+
+  if (typeof updates.prompt === 'string') {
+    payload.prompt = updates.prompt.trim();
+  }
+  if (typeof updates.answer === 'string') {
+    payload.answer = updates.answer.trim().toLowerCase();
+  }
+
+  const { data, error } = await supabase
+    .from('skill_questions')
+    .update(payload)
+    .eq('id', id)
+    .select('*')
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deactivateSkillQuestion(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('skill_questions')
+    .update({ is_active: false })
+    .eq('id', id);
+
+  if (error) throw error;
 }
 
 export async function validateSkillAnswer(questionId: string, answer: string): Promise<boolean> {

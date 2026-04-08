@@ -3,8 +3,8 @@ import { RaffleCard } from './RaffleCard';
 import { CreateRaffleForm } from './CreateRaffleForm';
 import { Button } from './Button';
 import { PayPalSettingsModal } from './PayPalSettings';
-import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner } from '../lib/api';
-import type { Raffle, Ticket } from '../types';
+import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllSkillQuestions, updateSkillQuestion, deactivateSkillQuestion } from '../lib/api';
+import type { Raffle, SkillQuestion, Ticket } from '../types';
 import { RefreshCw, TicketCheck, AlertCircle, Loader2, X, LogOut, Key, CreditCard } from 'lucide-react';
 
 interface AdminPanelProps {
@@ -27,6 +27,13 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState('');
 
   const [showPayPalSettings, setShowPayPalSettings] = useState(false);
+  const [skillQuestions, setSkillQuestions] = useState<SkillQuestion[]>([]);
+  const [isLoadingSkillQuestions, setIsLoadingSkillQuestions] = useState(true);
+  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
+  const [editPrompt, setEditPrompt] = useState('');
+  const [editAnswer, setEditAnswer] = useState('');
+  const [skillQuestionError, setSkillQuestionError] = useState('');
+  const [skillQuestionSuccess, setSkillQuestionSuccess] = useState('');
 
   const loadRaffles = async () => {
     try {
@@ -40,9 +47,72 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
     }
   };
 
+  const loadSkillQuestions = async () => {
+    try {
+      setIsLoadingSkillQuestions(true);
+      const data = await getAllSkillQuestions();
+      setSkillQuestions(data);
+    } catch (err) {
+      setSkillQuestionError(err instanceof Error ? err.message : 'Failed to load skill questions');
+    } finally {
+      setIsLoadingSkillQuestions(false);
+    }
+  };
+
   useEffect(() => {
     loadRaffles();
+    loadSkillQuestions();
   }, []);
+
+  const handleStartEditQuestion = (question: SkillQuestion) => {
+    setSkillQuestionError('');
+    setSkillQuestionSuccess('');
+    setEditingQuestionId(question.id);
+    setEditPrompt(question.prompt);
+    setEditAnswer(question.answer);
+  };
+
+  const handleCancelEditQuestion = () => {
+    setEditingQuestionId(null);
+    setEditPrompt('');
+    setEditAnswer('');
+  };
+
+  const handleSaveQuestion = async (id: string) => {
+    if (!editPrompt.trim() || !editAnswer.trim()) {
+      setSkillQuestionError('Question and answer are both required');
+      return;
+    }
+
+    try {
+      setSkillQuestionError('');
+      setSkillQuestionSuccess('');
+      await updateSkillQuestion(id, { prompt: editPrompt, answer: editAnswer });
+      await loadSkillQuestions();
+      setEditingQuestionId(null);
+      setEditPrompt('');
+      setEditAnswer('');
+      setSkillQuestionSuccess('Skill question updated');
+    } catch (err) {
+      setSkillQuestionError(err instanceof Error ? err.message : 'Failed to update skill question');
+    }
+  };
+
+  const handleDeactivateQuestion = async (id: string) => {
+    if (!confirm('Deactivate this skill question? It will no longer be selectable for new raffles.')) {
+      return;
+    }
+
+    try {
+      setSkillQuestionError('');
+      setSkillQuestionSuccess('');
+      await deactivateSkillQuestion(id);
+      await loadSkillQuestions();
+      setSkillQuestionSuccess('Skill question deactivated');
+    } catch (err) {
+      setSkillQuestionError(err instanceof Error ? err.message : 'Failed to deactivate skill question');
+    }
+  };
 
   const handleChangePassword = (e: React.FormEvent) => {
     e.preventDefault();
@@ -237,6 +307,99 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       )}
 
       <CreateRaffleForm onSuccess={loadRaffles} />
+
+      <div className="bg-brand-cream-light rounded-xl border-2 border-brand-cream-border p-4 sm:p-6 space-y-4">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <h3 className="text-lg sm:text-xl font-bold text-brand-green-dark">Skill Question Bank</h3>
+            <p className="text-sm text-brand-green">Edit or deactivate existing questions</p>
+          </div>
+          <Button variant="secondary" size="sm" onClick={loadSkillQuestions}>
+            <RefreshCw className="w-4 h-4 mr-1.5" />
+            Refresh
+          </Button>
+        </div>
+
+        {skillQuestionError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
+            {skillQuestionError}
+          </div>
+        )}
+        {skillQuestionSuccess && (
+          <div className="bg-brand-green-muted border border-brand-green rounded-lg p-3 text-brand-green-dark text-sm">
+            {skillQuestionSuccess}
+          </div>
+        )}
+
+        {isLoadingSkillQuestions ? (
+          <div className="flex items-center gap-2 text-sm text-brand-green">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Loading skill questions...
+          </div>
+        ) : skillQuestions.length === 0 ? (
+          <p className="text-sm text-brand-green">No skill questions found yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {skillQuestions.map((question) => {
+              const isEditing = editingQuestionId === question.id;
+
+              return (
+                <div key={question.id} className="border border-brand-cream-border rounded-lg p-3 sm:p-4 bg-white space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`text-xs font-semibold px-2 py-1 rounded ${question.is_active ? 'bg-brand-green-muted text-brand-green-dark' : 'bg-gray-100 text-gray-600'}`}>
+                      {question.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                    {!isEditing && (
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="secondary" onClick={() => handleStartEditQuestion(question)}>
+                          Edit
+                        </Button>
+                        {question.is_active && (
+                          <Button size="sm" variant="outline" onClick={() => handleDeactivateQuestion(question.id)}>
+                            Deactivate
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {isEditing ? (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-brand-green-dark mb-1">Question</label>
+                        <input
+                          type="text"
+                          value={editPrompt}
+                          onChange={(e) => setEditPrompt(e.target.value)}
+                          className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-brand-green-dark mb-1">Answer</label>
+                        <input
+                          type="text"
+                          value={editAnswer}
+                          onChange={(e) => setEditAnswer(e.target.value)}
+                          className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => handleSaveQuestion(question.id)}>Save</Button>
+                        <Button size="sm" variant="secondary" onClick={handleCancelEditQuestion}>Cancel</Button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="space-y-1 text-sm">
+                      <p className="text-brand-green-dark"><strong>Q:</strong> {question.prompt}</p>
+                      <p className="text-brand-green"><strong>A:</strong> {question.answer}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 text-red-700 flex items-center gap-2 text-sm" role="alert">
