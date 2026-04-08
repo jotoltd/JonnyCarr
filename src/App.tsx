@@ -5,7 +5,7 @@ import { UserAuth } from './components/UserAuth';
 import { AccountSettings } from './components/AccountSettings';
 import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
-import { Ticket, Users, Sparkles, User as UserIcon, LogOut, Shield, Menu, X, Settings } from 'lucide-react';
+import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings } from 'lucide-react';
 
 // Admin user name
 const ADMIN_USERNAME = 'Jonathan';
@@ -74,29 +74,27 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-cream">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-brand-green shadow-lg border-b-4 border-brand-gold sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-16 sm:h-20">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-lg sm:text-xl font-bold text-gray-900 truncate">Jonny Carr Cue</h1>
-                <p className="text-xs text-gray-500 hidden sm:block">Your chance to win amazing prizes!</p>
-              </div>
+              <img
+                src="/excel_cues_logo.JPEG"
+                alt="Jonny Carr Cues"
+                className="h-12 sm:h-16 w-auto object-contain"
+              />
             </div>
             
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-2">
+            <nav className="hidden md:flex items-center gap-1">
               <button
                 onClick={() => handleTabChange('raffles')}
-                className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
+                className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
                   activeTab === 'raffles'
-                    ? 'bg-indigo-100 text-indigo-700'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'bg-brand-gold text-brand-green-dark'
+                    : 'text-brand-cream hover:bg-brand-green-light'
                 }`}
               >
                 <span className="flex items-center gap-1.5">
@@ -108,10 +106,10 @@ function App() {
               {isAdmin && (
                 <button
                   onClick={() => handleTabChange('admin')}
-                  className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
                     activeTab === 'admin'
-                      ? 'bg-indigo-100 text-indigo-700'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-brand-gold text-brand-green-dark'
+                      : 'text-brand-cream hover:bg-brand-green-light'
                   }`}
                 >
                   <span className="flex items-center gap-1.5">
@@ -122,18 +120,18 @@ function App() {
               )}
               
               {user ? (
-                <div className="flex items-center gap-2 ml-2 pl-2 border-l border-gray-200">
-                  <span className="text-sm text-gray-600 hidden lg:inline">Hello, {user.name}</span>
+                <div className="flex items-center gap-1 ml-2 pl-2 border-l border-brand-green-light">
+                  <span className="text-sm text-brand-cream hidden lg:inline mr-1">Hello, {user.name}</span>
                   <button
                     onClick={() => setShowAccountSettings(true)}
-                    className="px-3 py-2 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-1.5 text-sm"
+                    className="px-3 py-2 rounded-lg font-medium text-brand-cream hover:bg-brand-green-light transition-colors flex items-center gap-1.5 text-sm"
                     title="Account Settings"
                   >
                     <Settings className="w-4 h-4" />
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="px-3 py-2 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-1.5 text-sm"
+                    className="px-3 py-2 rounded-lg font-medium text-brand-cream hover:bg-brand-green-light transition-colors flex items-center gap-1.5 text-sm"
                   >
                     <LogOut className="w-4 h-4" />
                     <span className="hidden lg:inline">Logout</span>
@@ -142,10 +140,10 @@ function App() {
               ) : (
                 <button
                   onClick={() => handleTabChange('auth')}
-                  className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
                     activeTab === 'auth'
-                      ? 'bg-indigo-100 text-indigo-700'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-brand-gold text-brand-green-dark'
+                      : 'text-brand-cream hover:bg-brand-green-light'
                   }`}
                 >
                   <span className="flex items-center gap-1.5">
@@ -159,7 +157,7 @@ function App() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+              className="md:hidden p-2 rounded-lg text-brand-cream hover:bg-brand-green-light"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -169,14 +167,14 @@ function App() {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 bg-white">
-            <div className="px-4 py-3 space-y-2">
+          <div className="md:hidden border-t-2 border-brand-gold bg-brand-green-dark">
+            <div className="px-4 py-3 space-y-1">
               <button
                 onClick={() => handleTabChange('raffles')}
                 className={`w-full px-4 py-3 rounded-lg font-medium transition-colors flex items-center gap-3 ${
                   activeTab === 'raffles'
-                    ? 'bg-indigo-100 text-indigo-700'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'bg-brand-gold text-brand-green-dark'
+                    : 'text-brand-cream hover:bg-brand-green-light'
                 }`}
               >
                 <Ticket className="w-5 h-5" />
@@ -188,8 +186,8 @@ function App() {
                   onClick={() => handleTabChange('admin')}
                   className={`w-full px-4 py-3 rounded-lg font-medium transition-colors flex items-center gap-3 ${
                     activeTab === 'admin'
-                      ? 'bg-indigo-100 text-indigo-700'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-brand-gold text-brand-green-dark'
+                      : 'text-brand-cream hover:bg-brand-green-light'
                   }`}
                 >
                   <Shield className="w-5 h-5" />
@@ -199,19 +197,19 @@ function App() {
               
               {user ? (
                 <>
-                  <div className="px-4 py-2 text-sm text-gray-600 border-t border-gray-100 mt-2 pt-2">
-                    Signed in as <span className="font-medium">{user.name}</span>
+                  <div className="px-4 py-2 text-sm text-brand-cream border-t border-brand-green-light mt-2 pt-2">
+                    Signed in as <span className="font-medium text-brand-gold">{user.name}</span>
                   </div>
                   <button
                     onClick={() => { setShowAccountSettings(true); setMobileMenuOpen(false); }}
-                    className="w-full px-4 py-3 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-3"
+                    className="w-full px-4 py-3 rounded-lg font-medium text-brand-cream hover:bg-brand-green-light transition-colors flex items-center gap-3"
                   >
                     <Settings className="w-5 h-5" />
                     Account Settings
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="w-full px-4 py-3 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-3"
+                    className="w-full px-4 py-3 rounded-lg font-medium text-brand-cream hover:bg-brand-green-light transition-colors flex items-center gap-3"
                   >
                     <LogOut className="w-5 h-5" />
                     Logout
@@ -222,8 +220,8 @@ function App() {
                   onClick={() => handleTabChange('auth')}
                   className={`w-full px-4 py-3 rounded-lg font-medium transition-colors flex items-center gap-3 ${
                     activeTab === 'auth'
-                      ? 'bg-indigo-100 text-indigo-700'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-brand-gold text-brand-green-dark'
+                      : 'text-brand-cream hover:bg-brand-green-light'
                   }`}
                 >
                   <UserIcon className="w-5 h-5" />
@@ -249,26 +247,33 @@ function App() {
         {activeTab === 'raffles' && (
           <div className="space-y-6">
             {/* Hero Section */}
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 text-white mb-6 sm:mb-8">
-              <div className="max-w-2xl">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
-                  Welcome to Jonny Carr Cue
-                </h2>
-                <p className="text-indigo-100 text-base sm:text-lg mb-4 sm:mb-6">
-                  Buy tickets for our exciting raffles and be in with a chance to win amazing prizes! 
-                  All proceeds go to great causes.
-                </p>
-                <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm sm:text-base">
-                  <div className="flex items-center gap-2">
-                    <Ticket className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span>{raffles.length} Active Raffles</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span>{raffles.reduce((acc, r) => acc + r.tickets_sold, 0)} Tickets Sold</span>
+            <div className="bg-brand-green rounded-xl sm:rounded-2xl overflow-hidden border-2 border-brand-gold mb-6 sm:mb-8 shadow-lg">
+              <div className="px-6 sm:px-10 py-8 sm:py-10 flex flex-col sm:flex-row items-center gap-6">
+                <img
+                  src="/excel_cues_logo.JPEG"
+                  alt="Jonny Carr Cues"
+                  className="w-32 sm:w-40 h-auto object-contain flex-shrink-0"
+                />
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-brand-cream mb-2 font-serif">
+                    Win a Handmade Jonny Carr Cue
+                  </h2>
+                  <p className="text-brand-cream-dark text-base sm:text-lg mb-4">
+                    Enter our exclusive raffles for a chance to own a beautifully crafted, handmade snooker cue.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm sm:text-base">
+                    <div className="flex items-center gap-2 text-brand-gold">
+                      <Ticket className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span className="font-semibold">{raffles.length} Active Raffles</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-brand-gold">
+                      <Users className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span className="font-semibold">{raffles.reduce((acc, r) => acc + r.tickets_sold, 0)} Tickets Sold</span>
+                    </div>
                   </div>
                 </div>
               </div>
+              <div className="h-1 bg-brand-gold" />
             </div>
 
             {error && (
@@ -279,14 +284,14 @@ function App() {
 
             {isLoading ? (
               <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-indigo-600 mx-auto"></div>
-                <p className="text-gray-600 mt-4">Loading raffles...</p>
+                <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-brand-green mx-auto"></div>
+                <p className="text-brand-green mt-4 font-medium">Loading raffles...</p>
               </div>
             ) : raffles.length === 0 ? (
-              <div className="text-center py-12 sm:py-16 bg-white rounded-xl shadow-sm border border-gray-100">
-                <Ticket className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">No Active Raffles</h3>
-                <p className="text-gray-600 text-sm sm:text-base">Check back soon for new raffles!</p>
+              <div className="text-center py-12 sm:py-16 bg-brand-cream-light rounded-xl shadow-sm border-2 border-brand-cream-border">
+                <Ticket className="w-12 h-12 sm:w-16 sm:h-16 text-brand-cream-border mx-auto mb-4" />
+                <h3 className="text-lg sm:text-xl font-semibold text-brand-green-dark mb-2">No Active Raffles</h3>
+                <p className="text-brand-green text-sm sm:text-base">Check back soon for new raffles!</p>
               </div>
             ) : (
               <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -312,10 +317,11 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-8 sm:mt-12">
+      <footer className="bg-brand-green border-t-4 border-brand-gold mt-8 sm:mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <div className="text-center text-gray-600 text-sm">
-            <p>&copy; {new Date().getFullYear()} Jonny Carr Cue. All rights reserved.</p>
+          <div className="flex flex-col items-center gap-3">
+            <img src="/excel_cues_logo.JPEG" alt="Jonny Carr Cues" className="h-12 w-auto object-contain opacity-90" />
+            <p className="text-brand-cream text-sm">&copy; {new Date().getFullYear()} Jonny Carr Cues Hand Made. All rights reserved.</p>
           </div>
         </div>
       </footer>

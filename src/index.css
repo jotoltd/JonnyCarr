@@ -3,17 +3,19 @@
 @tailwind utilities;
 
 :root {
-  --text: #1f2937;
-  --text-h: #111827;
-  --bg: #f9fafb;
-  --card-bg: #ffffff;
-  --border: #e5e7eb;
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
-  --accent-bg: rgba(79, 70, 229, 0.1);
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
+  --text: #1a1a1a;
+  --text-h: #0d3d28;
+  --bg: #f5ede0;
+  --card-bg: #faf6ef;
+  --border: #d4c5a9;
+  --accent: #1a5c3a;
+  --accent-hover: #0d3d28;
+  --accent-bg: rgba(26, 92, 58, 0.1);
+  --gold: #c9a84c;
+  --gold-hover: #a88835;
+  --success: #1a5c3a;
+  --warning: #c9a84c;
+  --error: #b91c1c;
 }
 
 body {
@@ -26,4 +28,22 @@ body {
 
 #root {
   min-height: 100vh;
+}
+
+.btn-brand {
+  background-color: #1a5c3a;
+  color: #faf6ef;
+  border: 2px solid #c9a84c;
+}
+.btn-brand:hover {
+  background-color: #0d3d28;
+}
+
+.btn-gold {
+  background-color: #c9a84c;
+  color: #0d3d28;
+  font-weight: 700;
+}
+.btn-gold:hover {
+  background-color: #a88835;
 }
