@@ -45,6 +45,32 @@ export async function loginUser(email: string, password: string): Promise<User |
   return user;
 }
 
+export async function updateUser(
+  id: string,
+  updates: { name?: string; email?: string; password?: string }
+): Promise<User> {
+  // If email is changing, check it's not already taken
+  if (updates.email) {
+    const { data: existing } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', updates.email)
+      .neq('id', id)
+      .single();
+    if (existing) throw new Error('That email is already in use');
+  }
+
+  const { data, error } = await supabase
+    .from('users')
+    .update(updates)
+    .eq('id', id)
+    .select('id, email, name, created_at')
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
 export async function getUserByEmail(email: string): Promise<User | null> {
   const { data, error } = await supabase
     .from('users')

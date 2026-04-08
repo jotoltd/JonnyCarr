@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { RaffleCard } from './components/RaffleCard';
 import { AdminPanel } from './components/AdminPanel';
 import { UserAuth } from './components/UserAuth';
+import { AccountSettings } from './components/AccountSettings';
 import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
-import { Ticket, Users, Sparkles, User as UserIcon, LogOut, Shield, Menu, X } from 'lucide-react';
+import { Ticket, Users, Sparkles, User as UserIcon, LogOut, Shield, Menu, X, Settings } from 'lucide-react';
 
 // Admin user name
 const ADMIN_USERNAME = 'Jonathan';
@@ -16,6 +17,7 @@ function App() {
   const [error, setError] = useState('');
   const [user, setUser] = useState<User | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showAccountSettings, setShowAccountSettings] = useState(false);
 
   // Restore session from localStorage on mount
   useEffect(() => {
@@ -59,6 +61,11 @@ function App() {
     localStorage.removeItem('session_email');
     setActiveTab('raffles');
     setMobileMenuOpen(false);
+  };
+
+  const handleUserUpdate = (updated: User) => {
+    setUser(updated);
+    localStorage.setItem('session_email', updated.email);
   };
 
   const handleTabChange = (tab: 'raffles' | 'admin' | 'auth') => {
@@ -117,6 +124,13 @@ function App() {
               {user ? (
                 <div className="flex items-center gap-2 ml-2 pl-2 border-l border-gray-200">
                   <span className="text-sm text-gray-600 hidden lg:inline">Hello, {user.name}</span>
+                  <button
+                    onClick={() => setShowAccountSettings(true)}
+                    className="px-3 py-2 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-1.5 text-sm"
+                    title="Account Settings"
+                  >
+                    <Settings className="w-4 h-4" />
+                  </button>
                   <button
                     onClick={handleLogout}
                     className="px-3 py-2 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-1.5 text-sm"
@@ -189,6 +203,13 @@ function App() {
                     Signed in as <span className="font-medium">{user.name}</span>
                   </div>
                   <button
+                    onClick={() => { setShowAccountSettings(true); setMobileMenuOpen(false); }}
+                    className="w-full px-4 py-3 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-3"
+                  >
+                    <Settings className="w-5 h-5" />
+                    Account Settings
+                  </button>
+                  <button
                     onClick={handleLogout}
                     className="w-full px-4 py-3 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-3"
                   >
@@ -213,6 +234,15 @@ function App() {
           </div>
         )}
       </header>
+
+      {/* Account Settings Modal */}
+      {showAccountSettings && user && (
+        <AccountSettings
+          user={user}
+          onUpdate={handleUserUpdate}
+          onClose={() => setShowAccountSettings(false)}
+        />
+      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
