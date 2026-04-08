@@ -10,6 +10,7 @@ import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings } fr
 
 // Admin user name
 const ADMIN_USERNAME = 'Jonathan';
+const LOGO_SRC = `${import.meta.env.BASE_URL}logo.png`;
 
 function App() {
   const [activeTab, setActiveTab] = useState<'raffles' | 'tickets' | 'admin' | 'auth'>('raffles');
@@ -82,7 +83,7 @@ function App() {
           <div className="flex items-center justify-between h-16 sm:h-20">
             <div className="flex items-center gap-3">
               <img
-                src="/logo.png"
+                src={LOGO_SRC}
                 alt="Jonny Carr Cues"
                 className="h-12 sm:h-16 w-auto object-contain"
               />
@@ -281,7 +282,7 @@ function App() {
             <div className="bg-brand-green rounded-xl sm:rounded-2xl overflow-hidden border-2 border-brand-gold mb-6 sm:mb-8 shadow-lg">
               <div className="px-6 sm:px-10 py-8 sm:py-10 flex flex-col sm:flex-row items-center gap-6">
                 <img
-                  src="/logo.png"
+                  src={LOGO_SRC}
                   alt="Jonny Carr Cues"
                   className="w-32 sm:w-40 h-auto object-contain flex-shrink-0"
                 />
@@ -357,7 +358,7 @@ function App() {
       <footer className="bg-brand-green border-t-4 border-brand-gold mt-8 sm:mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="flex flex-col items-center gap-3">
-            <img src="/logo.png" alt="Jonny Carr Cues" className="h-12 w-auto object-contain opacity-90" />
+            <img src={LOGO_SRC} alt="Jonny Carr Cues" className="h-12 w-auto object-contain opacity-90" />
             <p className="text-brand-cream text-sm">&copy; {new Date().getFullYear()} Jonny Carr Cues Hand Made. All rights reserved.</p>
           </div>
         </div>

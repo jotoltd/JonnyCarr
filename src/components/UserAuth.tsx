@@ -5,6 +5,8 @@ import type { User } from '../types';
 import { registerUser, loginUser } from '../lib/api';
 import { AlertCircle } from 'lucide-react';
 
+const LOGO_SRC = `${import.meta.env.BASE_URL}logo.png`;
+
 interface UserAuthProps {
   onLogin: (user: User) => void;
 }
@@ -56,7 +58,7 @@ export function UserAuth({ onLogin }: UserAuthProps) {
         <div className="p-6 sm:p-8">
           <div className="text-center mb-6">
             <img
-              src="/logo.png"
+              src={LOGO_SRC}
               alt="Jonny Carr Cues"
               className="w-24 h-auto object-contain mx-auto mb-4"
             />
