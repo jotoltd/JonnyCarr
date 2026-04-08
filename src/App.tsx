@@ -277,7 +277,7 @@ function App() {
         )}
         
         {activeTab === 'admin' && isAdmin && (
-          <AdminPanel />
+          <AdminPanel onLogout={handleLogout} />
         )}
       </main>
 

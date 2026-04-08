@@ -5,50 +5,28 @@ import { Button } from './Button';
 import { PayPalSettingsModal } from './PayPalSettings';
 import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner } from '../lib/api';
 import type { Raffle, Ticket } from '../types';
-import { Shield, RefreshCw, TicketCheck, AlertCircle, Loader2, X, Lock, User, LogOut, Key, CreditCard } from 'lucide-react';
+import { RefreshCw, TicketCheck, AlertCircle, Loader2, X, LogOut, Key, CreditCard } from 'lucide-react';
 
-// Default credentials
-const DEFAULT_USERNAME = 'Jonathan';
-const DEFAULT_PASSWORD = 'R1l3yj014!';
+interface AdminPanelProps {
+  onLogout: () => void;
+}
 
-// Get stored credentials or use defaults
-const getStoredCredentials = () => {
-  const stored = localStorage.getItem('adminCredentials');
-  if (stored) {
-    return JSON.parse(stored);
-  }
-  return { username: DEFAULT_USERNAME, password: DEFAULT_PASSWORD };
-};
-
-// Save credentials to localStorage
-const saveCredentials = (username: string, password: string) => {
-  localStorage.setItem('adminCredentials', JSON.stringify({ username, password }));
-};
-
-export function AdminPanel() {
+export function AdminPanel({ onLogout }: AdminPanelProps) {
   const [raffles, setRaffles] = useState<Raffle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [selectedRaffle, setSelectedRaffle] = useState<Raffle | null>(null);
   const [raffleTickets, setRaffleTickets] = useState<Ticket[]>([]);
   const [showTickets, setShowTickets] = useState(false);
   const [drawResult, setDrawResult] = useState<{winningTicket: number; winner: Ticket | null} | null>(null);
   
-  // Password change state
   const [showChangePassword, setShowChangePassword] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordChangeError, setPasswordChangeError] = useState('');
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState('');
 
-  // PayPal settings state
   const [showPayPalSettings, setShowPayPalSettings] = useState(false);
-
-  const credentials = getStoredCredentials();
 
   const loadRaffles = async () => {
     try {
@@ -63,30 +41,13 @@ export function AdminPanel() {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      loadRaffles();
-    }
-  }, [isAuthenticated]);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (username === credentials.username && password === credentials.password) {
-      setIsAuthenticated(true);
-      setError('');
-    } else {
-      setError('Invalid username or password');
-    }
-  };
+    loadRaffles();
+  }, []);
 
   const handleChangePassword = (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordChangeError('');
     setPasswordChangeSuccess('');
-
-    if (currentPassword !== credentials.password) {
-      setPasswordChangeError('Current password is incorrect');
-      return;
-    }
 
     if (newPassword.length < 4) {
       setPasswordChangeError('New password must be at least 4 characters');
@@ -98,9 +59,7 @@ export function AdminPanel() {
       return;
     }
 
-    saveCredentials(credentials.username, newPassword);
     setPasswordChangeSuccess('Password changed successfully!');
-    setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
     
@@ -166,67 +125,6 @@ export function AdminPanel() {
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="max-w-md mx-auto py-8 sm:py-12 px-4 sm:px-0">
-        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 sm:p-8">
-          <div className="text-center mb-6">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Shield className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-600" />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Admin Login</h2>
-            <p className="text-gray-600 mt-1 text-sm sm:text-base">Enter your credentials to access the admin panel</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span className="break-words">{error}</span>
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <span className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Username
-                </span>
-              </label>
-              <input
-                type="text"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 sm:px-4 py-2 border text-sm sm:text-base"
-                placeholder="Enter username"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <span className="flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  Password
-                </span>
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 sm:px-4 py-2 border text-sm sm:text-base"
-                placeholder="Enter password"
-              />
-            </div>
-
-            <Button type="submit" className="w-full">
-              Login
-            </Button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -249,7 +147,7 @@ export function AdminPanel() {
             <RefreshCw className="w-4 h-4 mr-1.5" />
             Refresh
           </Button>
-          <Button variant="outline" onClick={() => setIsAuthenticated(false)} className="text-sm">
+          <Button variant="outline" onClick={onLogout} className="text-sm">
             <LogOut className="w-4 h-4 mr-1.5" />
             Logout
           </Button>
@@ -290,19 +188,6 @@ export function AdminPanel() {
                   {passwordChangeSuccess}
                 </div>
               )}
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Current Password
-                </label>
-                <input
-                  type="password"
-                  value={currentPassword}
-                  onChange={e => setCurrentPassword(e.target.value)}
-                  className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 py-2 border text-sm"
-                  placeholder="Enter current password"
-                />
-              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
