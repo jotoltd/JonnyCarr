@@ -3,7 +3,7 @@ import emailjs from '@emailjs/browser';
 import type { Raffle, User } from '../types';
 import { Button } from './Button';
 import { Input } from './Input';
-import { purchaseTickets, getPayPalSettingsDB, getAvailableTicketNumbers, type PayPalSettings } from '../lib/api';
+import { purchaseTickets, getPayPalSettingsDB, getAvailableTicketNumbers, getSkillQuestionById, validateSkillAnswer, type PayPalSettings } from '../lib/api';
 import { Ticket, CheckCircle, Loader2, CreditCard, AlertCircle } from 'lucide-react';
 
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
@@ -36,6 +36,9 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
   const [selectedTicketNumbers, setSelectedTicketNumbers] = useState<number[]>([]);
   const [availableTicketNumbers, setAvailableTicketNumbers] = useState<number[]>([]);
   const [isLoadingTickets, setIsLoadingTickets] = useState(true);
+  const [skillQuestionPrompt, setSkillQuestionPrompt] = useState('');
+  const [skillAnswer, setSkillAnswer] = useState('');
+  const [isCheckingSkillAnswer, setIsCheckingSkillAnswer] = useState(false);
   const [buyerName, setBuyerName] = useState(user.name || '');
   const [buyerEmail, setBuyerEmail] = useState(user.email || '');
   const [buyerPhone, setBuyerPhone] = useState('');
@@ -71,6 +74,20 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
 
     loadAvailableTickets();
   }, [raffle.id, raffle.total_tickets]);
+
+  useEffect(() => {
+    const loadSkillQuestion = async () => {
+      if (!raffle.skill_question_id) {
+        setSkillQuestionPrompt('');
+        return;
+      }
+
+      const question = await getSkillQuestionById(raffle.skill_question_id);
+      setSkillQuestionPrompt(question?.prompt || '');
+    };
+
+    loadSkillQuestion();
+  }, [raffle.skill_question_id]);
   
   // Load PayPal settings from database
   useEffect(() => {
@@ -186,7 +203,7 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -200,6 +217,25 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
     }
     if (quantity < 1) {
       setError('Please select at least 1 ticket number');
+      return;
+    }
+
+    if (!raffle.skill_question_id || !skillQuestionPrompt) {
+      setError('This game is missing a configured skill question. Please contact admin.');
+      return;
+    }
+
+    if (!skillAnswer.trim()) {
+      setError('Please answer the skill question before buying tickets');
+      return;
+    }
+
+    setIsCheckingSkillAnswer(true);
+    const isCorrect = await validateSkillAnswer(raffle.skill_question_id, skillAnswer);
+    setIsCheckingSkillAnswer(false);
+
+    if (!isCorrect) {
+      setError('Incorrect answer. Please try again.');
       return;
     }
 
@@ -247,6 +283,7 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
     setPurchasedTickets(null);
     setPaymentStep('form');
     setSelectedTicketNumbers([]);
+    setSkillAnswer('');
     setBuyerName(user.name || '');
     setBuyerEmail(user.email || '');
     setBuyerPhone('');
@@ -418,6 +455,19 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
         </div>
       </div>
 
+      <div className="bg-brand-cream-light border border-brand-cream-border rounded-lg p-3 sm:p-4">
+        <p className="text-sm font-semibold text-brand-green-dark mb-2">Skill Question (Required)</p>
+        <p className="text-sm text-brand-green mb-3">{skillQuestionPrompt || 'Loading question...'}</p>
+        <Input
+          label="Your Answer *"
+          type="text"
+          required
+          value={skillAnswer}
+          onChange={e => setSkillAnswer(e.target.value)}
+          placeholder="Type your answer"
+        />
+      </div>
+
       <Input
         label="Full Name *"
         type="text"
@@ -447,12 +497,17 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
       <Button
         type="submit"
         className="w-full mt-4 sm:mt-6"
-        disabled={isSubmitting || availableTickets === 0 || isLoadingTickets || quantity === 0}
+        disabled={isSubmitting || isCheckingSkillAnswer || availableTickets === 0 || isLoadingTickets || quantity === 0}
       >
         {isSubmitting ? (
           <>
             <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
             Processing...
+          </>
+        ) : isCheckingSkillAnswer ? (
+          <>
+            <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+            Checking Answer...
           </>
         ) : isPayPalEnabled ? (
           <>

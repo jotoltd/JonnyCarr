@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from './Button';
 import { Input } from './Input';
 import { Textarea } from './Textarea';
-import { createRaffle } from '../lib/api';
+import { createRaffle, createSkillQuestion, getSkillQuestions } from '../lib/api';
 import { Plus, X } from 'lucide-react';
+import type { SkillQuestion } from '../types';
 
 interface CreateRaffleFormProps {
   onSuccess: () => void;
@@ -15,8 +16,55 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
   const [description, setDescription] = useState('');
   const [totalTickets, setTotalTickets] = useState('');
   const [pricePerTicket, setPricePerTicket] = useState('');
+  const [skillQuestions, setSkillQuestions] = useState<SkillQuestion[]>([]);
+  const [selectedSkillQuestionId, setSelectedSkillQuestionId] = useState('');
+  const [newQuestionPrompt, setNewQuestionPrompt] = useState('');
+  const [newQuestionAnswer, setNewQuestionAnswer] = useState('');
+  const [isCreatingQuestion, setIsCreatingQuestion] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const loadQuestions = async () => {
+      try {
+        const questions = await getSkillQuestions();
+        setSkillQuestions(questions);
+        if (questions.length > 0 && !selectedSkillQuestionId) {
+          setSelectedSkillQuestionId(questions[0].id);
+        }
+      } catch {
+        setError('Failed to load skill questions');
+      }
+    };
+
+    loadQuestions();
+  }, [isOpen, selectedSkillQuestionId]);
+
+  const handleCreateSkillQuestion = async () => {
+    if (!newQuestionPrompt.trim() || !newQuestionAnswer.trim()) {
+      setError('Enter both question and answer to add a skill question');
+      return;
+    }
+
+    setError('');
+    setIsCreatingQuestion(true);
+    try {
+      const created = await createSkillQuestion({
+        prompt: newQuestionPrompt.trim(),
+        answer: newQuestionAnswer.trim(),
+      });
+      setSkillQuestions(prev => [created, ...prev]);
+      setSelectedSkillQuestionId(created.id);
+      setNewQuestionPrompt('');
+      setNewQuestionAnswer('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create skill question');
+    } finally {
+      setIsCreatingQuestion(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +75,7 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
       await createRaffle({
         title,
         description: description || null,
+        skill_question_id: selectedSkillQuestionId,
         total_tickets: parseInt(totalTickets),
         price_per_ticket: parseFloat(pricePerTicket),
         status: 'active',
@@ -37,6 +86,7 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
       setDescription('');
       setTotalTickets('');
       setPricePerTicket('');
+      setSelectedSkillQuestionId(skillQuestions[0]?.id || '');
       setIsOpen(false);
       onSuccess();
     } catch (err) {
@@ -114,6 +164,56 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
           />
         </div>
 
+        <div className="bg-brand-cream-light border border-brand-cream-border rounded-lg p-3 sm:p-4 space-y-3">
+          <h3 className="font-semibold text-brand-green-dark text-sm">Skill Question (Required)</h3>
+
+          <div>
+            <label className="block text-sm font-medium text-brand-green-dark mb-1">
+              Question for this raffle *
+            </label>
+            <select
+              value={selectedSkillQuestionId}
+              onChange={(e) => setSelectedSkillQuestionId(e.target.value)}
+              className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
+              required
+            >
+              <option value="" disabled>Select a question</option>
+              {skillQuestions.map((question) => (
+                <option key={question.id} value={question.id}>
+                  {question.prompt}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="pt-2 border-t border-brand-cream-border space-y-2">
+            <p className="text-xs text-brand-green font-medium">Add new question</p>
+            <Input
+              label="Question"
+              type="text"
+              value={newQuestionPrompt}
+              onChange={(e) => setNewQuestionPrompt(e.target.value)}
+              placeholder="e.g. What is 7 + 5?"
+            />
+            <Input
+              label="Answer"
+              type="text"
+              value={newQuestionAnswer}
+              onChange={(e) => setNewQuestionAnswer(e.target.value)}
+              placeholder="e.g. 12"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleCreateSkillQuestion}
+              disabled={isCreatingQuestion}
+              className="w-full sm:w-auto"
+            >
+              {isCreatingQuestion ? 'Adding Question...' : 'Add Question to Bank'}
+            </Button>
+          </div>
+        </div>
+
         <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mt-4">
           <p className="text-sm text-gray-600">
             <strong>Summary:</strong>{' '}
@@ -134,7 +234,7 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting || !title || !totalTickets || !pricePerTicket}
+            disabled={isSubmitting || !title || !totalTickets || !pricePerTicket || !selectedSkillQuestionId}
             className="w-full sm:w-auto"
           >
             {isSubmitting ? 'Creating...' : 'Create Raffle'}

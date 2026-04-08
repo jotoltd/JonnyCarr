@@ -2,6 +2,7 @@ export interface Raffle {
   id: string;
   title: string;
   description: string | null;
+  skill_question_id: string | null;
   total_tickets: number;
   price_per_ticket: number;
   tickets_sold: number;
@@ -23,6 +24,14 @@ export interface Ticket {
 
 export interface RaffleWithTickets extends Raffle {
   tickets: Ticket[];
+}
+
+export interface SkillQuestion {
+  id: string;
+  prompt: string;
+  answer: string;
+  is_active: boolean;
+  created_at: string;
 }
 
 export interface User {

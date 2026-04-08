@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
-import type { Raffle, Ticket, User } from '../types';
+import type { Raffle, SkillQuestion, Ticket, User } from '../types';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
@@ -146,6 +146,53 @@ export async function savePayPalSettingsDB(settings: Omit<PayPalSettings, 'id' |
     });
   
   if (error) throw error;
+}
+
+// Skill question operations
+export async function getSkillQuestions(): Promise<SkillQuestion[]> {
+  const { data, error } = await supabase
+    .from('skill_questions')
+    .select('*')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getSkillQuestionById(id: string): Promise<SkillQuestion | null> {
+  const { data, error } = await supabase
+    .from('skill_questions')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) return null;
+  return data;
+}
+
+export async function createSkillQuestion(question: {
+  prompt: string;
+  answer: string;
+}): Promise<SkillQuestion> {
+  const { data, error } = await supabase
+    .from('skill_questions')
+    .insert({
+      prompt: question.prompt,
+      answer: question.answer.trim().toLowerCase(),
+      is_active: true,
+    })
+    .select('*')
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function validateSkillAnswer(questionId: string, answer: string): Promise<boolean> {
+  const question = await getSkillQuestionById(questionId);
+  if (!question) return false;
+  return question.answer.trim().toLowerCase() === answer.trim().toLowerCase();
 }
 
 // Raffle operations
