@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import type { Raffle } from '../types';
+import type { User } from '../types';
 import { Button } from './Button';
 import { TicketPurchase } from './TicketPurchase';
 import { Ticket, Users, PoundSterling, Clock, XCircle, Trophy } from 'lucide-react';
 
 interface RaffleCardProps {
   raffle: Raffle;
+  user?: User | null;
+  onRequireLogin?: () => void;
   isAdmin?: boolean;
   onRefresh: () => void;
   onClose?: (id: string) => void;
@@ -13,7 +16,7 @@ interface RaffleCardProps {
   onDelete?: (id: string) => void;
 }
 
-export function RaffleCard({ raffle, isAdmin, onRefresh, onClose, onDraw, onDelete }: RaffleCardProps) {
+export function RaffleCard({ raffle, user, onRequireLogin, isAdmin, onRefresh, onClose, onDraw, onDelete }: RaffleCardProps) {
   const [showPurchase, setShowPurchase] = useState(false);
   const availableTickets = raffle.total_tickets - raffle.tickets_sold;
   const progress = (raffle.tickets_sold / raffle.total_tickets) * 100;
@@ -143,7 +146,15 @@ export function RaffleCard({ raffle, isAdmin, onRefresh, onClose, onDraw, onDele
         {/* Purchase Section */}
         {raffle.status === 'active' && !isAdmin && (
           <div className="pt-4 border-t border-brand-cream-border">
-            {showPurchase ? (
+            {!user ? (
+              <div className="space-y-3">
+                <p className="text-sm text-brand-green">Please log in to choose and buy ticket numbers.</p>
+                <Button onClick={onRequireLogin} className="w-full" size="lg">
+                  <Ticket className="w-5 h-5 mr-2" />
+                  Login to Buy Tickets
+                </Button>
+              </div>
+            ) : showPurchase ? (
               <div className="animate-in fade-in slide-in-from-top-2">
                 <div className="flex justify-between items-center mb-4">
                   <h4 className="font-semibold text-brand-green-dark">Purchase Tickets</h4>
@@ -154,7 +165,7 @@ export function RaffleCard({ raffle, isAdmin, onRefresh, onClose, onDraw, onDele
                     <XCircle className="w-5 h-5" />
                   </button>
                 </div>
-                <TicketPurchase raffle={raffle} onSuccess={() => {
+                <TicketPurchase raffle={raffle} user={user} onSuccess={() => {
                   setShowPurchase(false);
                   onRefresh();
                 }} />

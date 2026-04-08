@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
-import type { Raffle } from '../types';
+import type { Raffle, User } from '../types';
 import { Button } from './Button';
 import { Input } from './Input';
-import { purchaseTickets, getPayPalSettingsDB, type PayPalSettings } from '../lib/api';
+import { purchaseTickets, getPayPalSettingsDB, getAvailableTicketNumbers, type PayPalSettings } from '../lib/api';
 import { Ticket, CheckCircle, Loader2, CreditCard, AlertCircle } from 'lucide-react';
 
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
@@ -28,13 +28,16 @@ async function sendConfirmationEmail(params: {
 
 interface TicketPurchaseProps {
   raffle: Raffle;
+  user: User;
   onSuccess: () => void;
 }
 
-export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
-  const [quantity, setQuantity] = useState(1);
-  const [buyerName, setBuyerName] = useState('');
-  const [buyerEmail, setBuyerEmail] = useState('');
+export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps) {
+  const [selectedTicketNumbers, setSelectedTicketNumbers] = useState<number[]>([]);
+  const [availableTicketNumbers, setAvailableTicketNumbers] = useState<number[]>([]);
+  const [isLoadingTickets, setIsLoadingTickets] = useState(true);
+  const [buyerName, setBuyerName] = useState(user.name || '');
+  const [buyerEmail, setBuyerEmail] = useState(user.email || '');
   const [buyerPhone, setBuyerPhone] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -43,8 +46,31 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
   const [paymentStep, setPaymentStep] = useState<'form' | 'payment' | 'success'>('form');
   const [paypalSettings, setPaypalSettings] = useState<PayPalSettings | null>(null);
 
-  const availableTickets = raffle.total_tickets - raffle.tickets_sold;
+  const quantity = selectedTicketNumbers.length;
+  const availableTickets = availableTicketNumbers.length;
   const totalPrice = quantity * raffle.price_per_ticket;
+  const availableSet = new Set(availableTicketNumbers);
+
+  useEffect(() => {
+    setBuyerName(user.name || '');
+    setBuyerEmail(user.email || '');
+  }, [user.name, user.email]);
+
+  useEffect(() => {
+    const loadAvailableTickets = async () => {
+      setIsLoadingTickets(true);
+      try {
+        const numbers = await getAvailableTicketNumbers(raffle.id, raffle.total_tickets);
+        setAvailableTicketNumbers(numbers);
+      } catch {
+        setError('Failed to load ticket availability');
+      } finally {
+        setIsLoadingTickets(false);
+      }
+    };
+
+    loadAvailableTickets();
+  }, [raffle.id, raffle.total_tickets]);
   
   // Load PayPal settings from database
   useEffect(() => {
@@ -103,7 +129,7 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
                   currency_code: 'GBP',
                   value: totalPrice.toFixed(2),
                 },
-                description: `${raffle.title} - ${quantity} ticket${quantity > 1 ? 's' : ''}`,
+                description: `${raffle.title} - ${quantity} selected ticket${quantity > 1 ? 's' : ''}`,
               }],
             });
           },
@@ -137,7 +163,8 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
         buyerName,
         email,
         buyerPhone || null,
-        quantity
+        quantity,
+        selectedTicketNumbers
       );
       const nums = tickets.map(t => t.ticket_number);
       setPurchasedTickets(nums);
@@ -171,6 +198,10 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
       setError('Please enter your email');
       return;
     }
+    if (quantity < 1) {
+      setError('Please select at least 1 ticket number');
+      return;
+    }
 
     if (isPayPalEnabled) {
       setPaymentStep('payment');
@@ -190,7 +221,8 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
         buyerName,
         buyerEmail,
         buyerPhone || null,
-        quantity
+        quantity,
+        selectedTicketNumbers
       );
       const nums = tickets.map(t => t.ticket_number);
       setPurchasedTickets(nums);
@@ -214,11 +246,21 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
   const resetForm = () => {
     setPurchasedTickets(null);
     setPaymentStep('form');
-    setQuantity(1);
-    setBuyerName('');
-    setBuyerEmail('');
+    setSelectedTicketNumbers([]);
+    setBuyerName(user.name || '');
+    setBuyerEmail(user.email || '');
     setBuyerPhone('');
     setError('');
+  };
+
+  const toggleTicketNumber = (ticketNumber: number) => {
+    if (!availableSet.has(ticketNumber) || isSubmitting) return;
+
+    setSelectedTicketNumbers((prev) =>
+      prev.includes(ticketNumber)
+        ? prev.filter((num) => num !== ticketNumber)
+        : [...prev, ticketNumber]
+    );
   };
 
   // Success screen
@@ -265,7 +307,7 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
           </div>
           <div className="text-sm text-brand-cream-dark space-y-1">
             <p><strong className="text-brand-gold">Raffle:</strong> {raffle.title}</p>
-            <p><strong className="text-brand-gold">Tickets:</strong> {quantity}</p>
+            <p><strong className="text-brand-gold">Tickets:</strong> {quantity} ({[...selectedTicketNumbers].sort((a, b) => a - b).map(n => `#${n}`).join(', ')})</p>
             <p><strong className="text-brand-gold">Total:</strong> £{totalPrice.toFixed(2)}</p>
           </div>
         </div>
@@ -322,6 +364,9 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
             Payment required via PayPal
           </p>
         )}
+        <p className="text-xs text-brand-green mt-1">
+          Selected: {quantity} ticket{quantity !== 1 ? 's' : ''}
+        </p>
       </div>
 
       {error && (
@@ -332,26 +377,44 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
 
       <div>
         <label className="block text-sm font-medium text-brand-green-dark mb-2">
-          Number of Tickets
+          Choose Ticket Numbers
         </label>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <button
-            type="button"
-            onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-brand-cream-dark hover:bg-brand-cream-border border border-brand-cream-border flex items-center justify-center text-brand-green-dark font-bold text-lg"
-            disabled={quantity <= 1}
-          >
-            -
-          </button>
-          <span className="text-lg sm:text-xl font-bold w-10 sm:w-12 text-center text-brand-green-dark">{quantity}</span>
-          <button
-            type="button"
-            onClick={() => setQuantity(Math.min(availableTickets, quantity + 1))}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-brand-cream-dark hover:bg-brand-cream-border border border-brand-cream-border flex items-center justify-center text-brand-green-dark font-bold text-lg"
-            disabled={quantity >= availableTickets}
-          >
-            +
-          </button>
+        {isLoadingTickets ? (
+          <div className="flex items-center gap-2 text-sm text-brand-green">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Loading ticket grid...
+          </div>
+        ) : (
+          <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-1.5 sm:gap-2 max-h-52 overflow-y-auto p-2 border border-brand-cream-border rounded-lg bg-brand-cream-light">
+            {Array.from({ length: raffle.total_tickets }, (_, idx) => idx + 1).map((ticketNumber) => {
+              const isAvailable = availableSet.has(ticketNumber);
+              const isSelected = selectedTicketNumbers.includes(ticketNumber);
+
+              return (
+                <button
+                  key={ticketNumber}
+                  type="button"
+                  onClick={() => toggleTicketNumber(ticketNumber)}
+                  disabled={!isAvailable || isSubmitting}
+                  className={`h-8 rounded text-xs font-semibold border transition-colors ${
+                    !isAvailable
+                      ? 'bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed'
+                      : isSelected
+                        ? 'bg-brand-green text-brand-gold border-brand-gold'
+                        : 'bg-white text-brand-green-dark border-brand-cream-border hover:border-brand-gold'
+                  }`}
+                  title={!isAvailable ? `Ticket #${ticketNumber} already taken` : `Ticket #${ticketNumber}`}
+                >
+                  {ticketNumber}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        <div className="flex gap-3 text-xs mt-2">
+          <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-white border border-brand-cream-border" /> Available</span>
+          <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-green border border-brand-gold" /> Selected</span>
+          <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-gray-200 border border-gray-300" /> Taken</span>
         </div>
       </div>
 
@@ -384,7 +447,7 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
       <Button
         type="submit"
         className="w-full mt-4 sm:mt-6"
-        disabled={isSubmitting || availableTickets === 0}
+        disabled={isSubmitting || availableTickets === 0 || isLoadingTickets || quantity === 0}
       >
         {isSubmitting ? (
           <>
@@ -394,7 +457,7 @@ export function TicketPurchase({ raffle, onSuccess }: TicketPurchaseProps) {
         ) : isPayPalEnabled ? (
           <>
             <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-            Continue to Payment - £{totalPrice}
+            Continue to Payment - £{totalPrice.toFixed(2)}
           </>
         ) : (
           <>

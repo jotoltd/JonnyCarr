@@ -330,6 +330,8 @@ function App() {
                   <RaffleCard
                     key={raffle.id}
                     raffle={raffle}
+                    user={user}
+                    onRequireLogin={() => handleTabChange('auth')}
                     onRefresh={loadRaffles}
                   />
                 ))}

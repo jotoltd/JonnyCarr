@@ -273,7 +273,8 @@ export async function purchaseTickets(
   buyerName: string,
   buyerEmail: string,
   buyerPhone: string | null,
-  quantity: number
+  quantity: number,
+  selectedTicketNumbers?: number[]
 ): Promise<Ticket[]> {
   const raffle = await getRaffleById(raffleId);
   if (!raffle) throw new Error('Raffle not found');
@@ -282,14 +283,41 @@ export async function purchaseTickets(
   if (available.length < quantity) {
     throw new Error(`Only ${available.length} tickets available`);
   }
-  
-  // Randomly select ticket numbers
-  const selectedNumbers: number[] = [];
-  const availableCopy = [...available];
-  
-  for (let i = 0; i < quantity; i++) {
-    const randomIndex = Math.floor(Math.random() * availableCopy.length);
-    selectedNumbers.push(availableCopy.splice(randomIndex, 1)[0]);
+
+  let selectedNumbers: number[] = [];
+
+  if (selectedTicketNumbers && selectedTicketNumbers.length > 0) {
+    if (selectedTicketNumbers.length !== quantity) {
+      throw new Error('Selected ticket count does not match quantity');
+    }
+
+    const uniqueSelected = Array.from(new Set(selectedTicketNumbers));
+    if (uniqueSelected.length !== selectedTicketNumbers.length) {
+      throw new Error('Duplicate ticket numbers selected');
+    }
+
+    const invalidSelected = uniqueSelected.filter(
+      (num) => num < 1 || num > raffle.total_tickets
+    );
+    if (invalidSelected.length > 0) {
+      throw new Error('One or more selected ticket numbers are invalid');
+    }
+
+    const availableSet = new Set(available);
+    const unavailableSelected = uniqueSelected.filter((num) => !availableSet.has(num));
+    if (unavailableSelected.length > 0) {
+      throw new Error(
+        `Ticket${unavailableSelected.length > 1 ? 's' : ''} ${unavailableSelected.join(', ')} ${unavailableSelected.length > 1 ? 'are' : 'is'} no longer available`
+      );
+    }
+
+    selectedNumbers = uniqueSelected;
+  } else {
+    const availableCopy = [...available];
+    for (let i = 0; i < quantity; i++) {
+      const randomIndex = Math.floor(Math.random() * availableCopy.length);
+      selectedNumbers.push(availableCopy.splice(randomIndex, 1)[0]);
+    }
   }
   
   // Create tickets
