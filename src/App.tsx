@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { RaffleCard } from './components/RaffleCard';
 import { AdminPanel } from './components/AdminPanel';
 import { UserAuth } from './components/UserAuth';
-import { getActiveRaffles } from './lib/api';
+import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
 import { Ticket, Users, Sparkles, User as UserIcon, LogOut, Shield, Menu, X } from 'lucide-react';
 
@@ -16,6 +16,17 @@ function App() {
   const [error, setError] = useState('');
   const [user, setUser] = useState<User | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Restore session from localStorage on mount
+  useEffect(() => {
+    const sessionEmail = localStorage.getItem('session_email');
+    if (sessionEmail) {
+      getUserByEmail(sessionEmail).then(u => {
+        if (u) setUser(u);
+        else localStorage.removeItem('session_email');
+      });
+    }
+  }, []);
 
   // No localStorage persistence - all user data in database only
   const isAdmin = user?.name === ADMIN_USERNAME;
@@ -38,12 +49,14 @@ function App() {
 
   const handleLogin = (userData: User) => {
     setUser(userData);
+    localStorage.setItem('session_email', userData.email);
     setActiveTab('raffles');
     setMobileMenuOpen(false);
   };
 
   const handleLogout = () => {
     setUser(null);
+    localStorage.removeItem('session_email');
     setActiveTab('raffles');
     setMobileMenuOpen(false);
   };
