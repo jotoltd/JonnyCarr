@@ -47,6 +47,13 @@ export function RaffleCard({ raffle, user, onRequireLogin, isAdmin, onRefresh, o
     <div className="bg-brand-cream-light rounded-xl shadow-md overflow-hidden border-2 border-brand-cream-border flex flex-col hover:border-brand-gold transition-colors">
       {/* Gold top accent bar */}
       <div className="h-1 bg-brand-gold" />
+      {raffle.image_url && (
+        <img
+          src={raffle.image_url}
+          alt={raffle.title}
+          className="h-48 w-full object-cover"
+        />
+      )}
       <div className="p-4 sm:p-6 flex-1">
         <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
           <div className="min-w-0 flex-1">

@@ -4,6 +4,7 @@ import type { Raffle, SkillQuestion, Ticket, User } from '../types';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const RAFFLE_IMAGE_BUCKET = 'raffle-images';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -280,6 +281,27 @@ export async function getRaffleById(id: string): Promise<Raffle | null> {
   
   if (error) throw error;
   return data;
+}
+
+export async function uploadRaffleImage(file: File): Promise<string> {
+  const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const fileName = `${crypto.randomUUID()}.${fileExt}`;
+  const filePath = `raffles/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from(RAFFLE_IMAGE_BUCKET)
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false,
+    });
+
+  if (uploadError) throw uploadError;
+
+  const { data } = supabase.storage
+    .from(RAFFLE_IMAGE_BUCKET)
+    .getPublicUrl(filePath);
+
+  return data.publicUrl;
 }
 
 export async function createRaffle(raffle: Omit<Raffle, 'id' | 'created_at' | 'tickets_sold' | 'drawn_at' | 'winning_ticket_number'>): Promise<Raffle> {

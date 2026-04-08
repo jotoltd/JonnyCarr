@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button } from './Button';
 import { Input } from './Input';
 import { Textarea } from './Textarea';
-import { createRaffle, getSkillQuestions } from '../lib/api';
+import { createRaffle, getSkillQuestions, uploadRaffleImage } from '../lib/api';
 import { Plus, X } from 'lucide-react';
 import type { SkillQuestion } from '../types';
 
@@ -14,10 +14,12 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [totalTickets, setTotalTickets] = useState('');
   const [pricePerTicket, setPricePerTicket] = useState('');
   const [skillQuestions, setSkillQuestions] = useState<SkillQuestion[]>([]);
   const [selectedSkillQuestionId, setSelectedSkillQuestionId] = useState('');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -48,6 +50,7 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
       await createRaffle({
         title,
         description: description || null,
+        image_url: imageUrl || null,
         skill_question_id: selectedSkillQuestionId,
         total_tickets: parseInt(totalTickets),
         price_per_ticket: parseFloat(pricePerTicket),
@@ -57,6 +60,7 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
       // Reset form
       setTitle('');
       setDescription('');
+      setImageUrl('');
       setTotalTickets('');
       setPricePerTicket('');
       setSelectedSkillQuestionId('');
@@ -66,6 +70,24 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
       setError(err instanceof Error ? err.message : 'Failed to create raffle');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setError('');
+    setIsUploadingImage(true);
+
+    try {
+      const uploadedUrl = await uploadRaffleImage(file);
+      setImageUrl(uploadedUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload image');
+    } finally {
+      setIsUploadingImage(false);
+      e.target.value = '';
     }
   };
 
@@ -113,6 +135,31 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
           placeholder="Describe the prize or purpose of this raffle..."
           rows={3}
         />
+
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Raffle Image (optional)
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
+          />
+          {isUploadingImage && (
+            <p className="text-sm text-brand-green">Uploading image...</p>
+          )}
+          {imageUrl && (
+            <div className="space-y-2">
+              <img
+                src={imageUrl}
+                alt="Raffle preview"
+                className="h-32 w-full object-cover rounded-lg border border-brand-cream-border"
+              />
+              <p className="text-xs text-brand-green break-all">{imageUrl}</p>
+            </div>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
@@ -187,7 +234,7 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting || !title || !totalTickets || !pricePerTicket || !selectedSkillQuestionId}
+            disabled={isSubmitting || isUploadingImage || !title || !totalTickets || !pricePerTicket || !selectedSkillQuestionId}
             className="w-full sm:w-auto"
           >
             {isSubmitting ? 'Creating...' : 'Create Raffle'}

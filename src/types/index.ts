@@ -2,6 +2,7 @@ export interface Raffle {
   id: string;
   title: string;
   description: string | null;
+  image_url: string | null;
   skill_question_id: string | null;
   total_tickets: number;
   price_per_ticket: number;
