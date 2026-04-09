@@ -97,12 +97,10 @@ function App() {
       <header className="bg-brand-green shadow-lg border-b-4 border-brand-gold sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
-            <div className="flex items-center gap-3">
-              <img
-                src={LOGO_SRC}
-                alt="Jonny Carr Cues"
-                className="h-12 sm:h-16 w-auto object-contain"
-              />
+            <div className="flex items-center">
+              <span className="text-brand-cream text-xl sm:text-2xl font-serif font-bold tracking-wide">
+                Jonny Carr
+              </span>
             </div>
             
             {/* Desktop Navigation */}
@@ -561,7 +559,9 @@ function App() {
       <footer className="bg-brand-green border-t-4 border-brand-gold mt-8 sm:mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="flex flex-col items-center gap-3">
-            <img src={LOGO_SRC} alt="Jonny Carr Cues" className="h-12 w-auto object-contain opacity-90" />
+            <span className="text-brand-cream text-lg font-serif font-bold tracking-wide opacity-90">
+              Jonny Carr
+            </span>
             <p className="text-brand-cream text-sm">&copy; {new Date().getFullYear()} Jonny Carr Cues Hand Made. All rights reserved.</p>
             <div className="flex gap-4 text-sm flex-wrap justify-center">
               <button
