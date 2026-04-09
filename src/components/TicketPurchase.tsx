@@ -317,7 +317,7 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
         <p className="text-brand-green mb-4 text-sm sm:text-base">
           Good luck, {buyerName}! You're in the draw for:
         </p>
-        <div className="bg-white rounded-xl border-2 border-brand-cream-border p-4 mb-6 max-w-sm mx-auto">
+        <div className="bg-brand-cream-light rounded-xl border-2 border-brand-cream-border p-4 mb-6 max-w-sm mx-auto">
           <p className="font-bold text-brand-green-dark text-lg">{raffle.title}</p>
           <p className="text-sm text-brand-green mt-1">{raffle.tickets_sold} / {raffle.total_tickets} tickets sold</p>
         </div>
@@ -448,10 +448,10 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
                   disabled={!isAvailable || isSubmitting}
                   className={`h-7 sm:h-8 rounded text-xs font-semibold border transition-colors ${
                     !isAvailable
-                      ? 'bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed'
+                      ? 'bg-brand-cream-dark text-brand-cream-border border-brand-cream-border cursor-not-allowed'
                       : isSelected
                         ? 'bg-brand-green text-brand-gold border-brand-gold'
-                        : 'bg-white text-brand-green-dark border-brand-cream-border hover:border-brand-gold'
+                        : 'bg-brand-cream-light text-brand-green-dark border-brand-cream-border hover:border-brand-gold'
                   }`}
                   title={!isAvailable ? `Ticket #${ticketNumber} already taken` : `Ticket #${ticketNumber}`}
                 >
@@ -463,9 +463,9 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
           </div>
         )}
         <div className="flex flex-wrap gap-2 sm:gap-3 text-xs mt-2">
-          <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-white border border-brand-cream-border" /> Available</span>
+          <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-cream-light border border-brand-cream-border" /> Available</span>
           <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-green border border-brand-gold" /> Selected</span>
-          <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-gray-200 border border-gray-300" /> Taken</span>
+          <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-cream-dark border border-brand-cream-border" /> Taken</span>
         </div>
       </div>
 

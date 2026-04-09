@@ -97,7 +97,7 @@ export function HowToPlay({ onClose }: HowToPlayProps) {
             <h3 className="text-lg font-bold text-brand-green-dark mb-4">The Process</h3>
             <div className="space-y-4">
               {steps.map((step, index) => (
-                <div key={index} className="flex gap-4 bg-white rounded-lg p-4 border border-brand-cream-border">
+                <div key={index} className="flex gap-4 bg-brand-cream rounded-lg p-4 border border-brand-cream-border">
                   <div className="flex-shrink-0">
                     <div className="w-10 h-10 bg-brand-green rounded-full flex items-center justify-center text-brand-gold font-bold">
                       {index + 1}
@@ -134,7 +134,7 @@ export function HowToPlay({ onClose }: HowToPlayProps) {
             </h3>
             <div className="space-y-3">
               {faqs.map((faq, index) => (
-                <div key={index} className="bg-white rounded-lg p-4 border border-brand-cream-border">
+                <div key={index} className="bg-brand-cream rounded-lg p-4 border border-brand-cream-border">
                   <h4 className="font-semibold text-brand-green-dark mb-1">{faq.q}</h4>
                   <p className="text-sm text-brand-green">{faq.a}</p>
                 </div>

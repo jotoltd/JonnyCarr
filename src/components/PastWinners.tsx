@@ -179,7 +179,7 @@ export function PastWinners() {
               </div>
 
               {winningTicket ? (
-                <div className="bg-white rounded-lg p-4 border border-brand-cream-border space-y-3">
+                <div className="bg-brand-cream rounded-lg p-4 border border-brand-cream-border space-y-3">
                   <div>
                     <p className="text-xs text-brand-green uppercase tracking-wider">Winner</p>
                     <p className="font-semibold text-brand-green-dark">{winningTicket.buyer_name}</p>

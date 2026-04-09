@@ -230,9 +230,9 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
           )}
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mt-4">
-          <p className="text-sm text-gray-600">
-            <strong>Summary:</strong>{' '}
+        <div className="bg-brand-cream rounded-lg p-3 sm:p-4 mt-4 border border-brand-cream-border">
+          <p className="text-sm text-brand-green">
+            <strong className="text-brand-green-dark">Summary:</strong>{' '}
             {totalTickets && pricePerTicket
               ? `${totalTickets} tickets at £${pricePerTicket} each = £${(parseInt(totalTickets || '0') * parseFloat(pricePerTicket || '0')).toFixed(2)} total potential revenue`
               : 'Fill in the fields to see revenue estimate'}
