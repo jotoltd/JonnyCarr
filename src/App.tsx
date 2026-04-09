@@ -13,7 +13,7 @@ import { TermsConditions } from './components/TermsConditions';
 import { PastWinners } from './components/PastWinners';
 import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
-import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2, AlertTriangle, Eye } from 'lucide-react';
+import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2, AlertTriangle, Eye, Clock, CheckCircle, Trophy } from 'lucide-react';
 
 // Admin user name
 const ADMIN_USERNAME = 'Jonathan';
@@ -432,6 +432,19 @@ function App() {
                       </div>
                     </div>
 
+                    {/* Urgency Banner - Limited Time */}
+                    {featuredRaffle.ends_at && new Date(featuredRaffle.ends_at) > new Date() && (
+                      <div className="bg-gradient-to-r from-brand-gold/20 to-brand-green/10 border-2 border-brand-gold rounded-xl p-4 flex items-center gap-3">
+                        <div className="w-10 h-10 bg-brand-gold rounded-full flex items-center justify-center flex-shrink-0">
+                          <Clock className="w-5 h-5 text-brand-green-dark" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-brand-green-dark">Limited Time Offer!</p>
+                          <p className="text-sm text-brand-green">This raffle ends soon. Don't miss your chance to win!</p>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Almost Sold Out Warning */}
                     {featuredAvailableTickets > 0 && featuredAvailableTickets <= 10 && (
                       <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex items-center gap-3 animate-pulse">
@@ -442,6 +455,22 @@ function App() {
                         </div>
                       </div>
                     )}
+
+                    {/* Trust Badges */}
+                    <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-brand-green bg-brand-cream-light rounded-lg py-3 px-4 border border-brand-cream-border">
+                      <span className="flex items-center gap-1">
+                        <Shield className="w-4 h-4 text-brand-gold" />
+                        Secure PayPal Payment
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <CheckCircle className="w-4 h-4 text-brand-gold" />
+                        Instant Ticket Confirmation
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Trophy className="w-4 h-4 text-brand-gold" />
+                        Guaranteed Draw
+                      </span>
+                    </div>
 
                     {/* Social Proof Counter */}
                     <div className="flex items-center justify-center gap-2 text-sm text-brand-green bg-brand-cream-light rounded-lg py-2 px-4 border border-brand-cream-border">

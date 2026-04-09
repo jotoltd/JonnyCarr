@@ -4,7 +4,7 @@ import type { Raffle, User } from '../types';
 import { Button } from './Button';
 import { Input } from './Input';
 import { purchaseTickets, getPayPalSettingsDB, getAvailableTicketNumbers, getSkillQuestionById, validateSkillAnswer, type PayPalSettings } from '../lib/api';
-import { Ticket, CheckCircle, Loader2, CreditCard, AlertCircle } from 'lucide-react';
+import { Ticket, CheckCircle, Loader2, CreditCard, AlertCircle, Shield } from 'lucide-react';
 
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '';
@@ -529,33 +529,54 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
         placeholder="Enter your phone number"
       />
 
+      {/* Urgency Message */}
+      {quantity > 0 && availableTickets <= 10 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center animate-pulse">
+          <p className="text-sm text-red-700 font-semibold">
+            Only {availableTickets} tickets left! Secure yours now!
+          </p>
+        </div>
+      )}
+
+      {/* Security Badge */}
+      <div className="flex items-center justify-center gap-2 text-xs text-brand-green">
+        <Shield className="w-4 h-4 text-brand-gold" />
+        <span>Secure SSL Checkout • PayPal Protected</span>
+      </div>
+
       <Button
         type="submit"
-        className="w-full mt-4 sm:mt-6"
+        className="w-full mt-2"
+        size="lg"
         disabled={isSubmitting || isCheckingSkillAnswer || availableTickets === 0 || isLoadingTickets || quantity === 0}
       >
         {isSubmitting ? (
           <>
             <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
-            Processing...
+            Securing Your Tickets...
           </>
         ) : isCheckingSkillAnswer ? (
           <>
             <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
-            Checking Answer...
+            Verifying Answer...
           </>
         ) : isPayPalEnabled ? (
           <>
             <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-            Continue to Payment - £{totalPrice.toFixed(2)}
+            Secure My {quantity} Ticket{quantity > 1 ? 's' : ''} Now - £{totalPrice.toFixed(2)}
           </>
         ) : (
           <>
             <Ticket className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-            Buy {quantity} Ticket{quantity > 1 ? 's' : ''}
+            Get My {quantity} Free Ticket{quantity > 1 ? 's' : ''}
           </>
         )}
       </Button>
+
+      {/* Guarantee Text */}
+      <p className="text-xs text-center text-brand-green">
+        Instant entry • Email confirmation • No purchase necessary for free draws
+      </p>
     </form>
   );
 }
