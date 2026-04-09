@@ -85,7 +85,7 @@ export function AdminAnalytics() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
         <div className="bg-brand-cream-light border-2 border-brand-cream-border rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs uppercase tracking-wider text-brand-gold font-semibold">Total Revenue</p>
@@ -190,7 +190,7 @@ export function AdminAnalytics() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <div className="bg-brand-green rounded-xl p-4 text-brand-cream">
           <div className="flex items-center gap-2 mb-2">
             <Users className="w-5 h-5 text-brand-gold" />

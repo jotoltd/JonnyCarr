@@ -435,7 +435,7 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
             Loading ticket grid...
           </div>
         ) : (
-          <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-1.5 sm:gap-2 max-h-52 overflow-y-auto p-2 border border-brand-cream-border rounded-lg bg-brand-cream-light">
+          <div className="grid grid-cols-5 xs:grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-1.5 sm:gap-2 max-h-52 sm:max-h-64 overflow-y-auto p-2 border border-brand-cream-border rounded-lg bg-brand-cream-light">
             {Array.from({ length: raffle.total_tickets }, (_, idx) => idx + 1).map((ticketNumber) => {
               const isAvailable = availableSet.has(ticketNumber);
               const isSelected = selectedTicketNumbers.includes(ticketNumber);
@@ -446,7 +446,7 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
                   type="button"
                   onClick={() => toggleTicketNumber(ticketNumber)}
                   disabled={!isAvailable || isSubmitting}
-                  className={`h-8 rounded text-xs font-semibold border transition-colors ${
+                  className={`h-7 sm:h-8 rounded text-xs font-semibold border transition-colors ${
                     !isAvailable
                       ? 'bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed'
                       : isSelected
@@ -455,13 +455,14 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
                   }`}
                   title={!isAvailable ? `Ticket #${ticketNumber} already taken` : `Ticket #${ticketNumber}`}
                 >
-                  {ticketNumber}
+                  <span className="hidden sm:inline">{ticketNumber}</span>
+                  <span className="sm:hidden">{ticketNumber}</span>
                 </button>
               );
             })}
           </div>
         )}
-        <div className="flex gap-3 text-xs mt-2">
+        <div className="flex flex-wrap gap-2 sm:gap-3 text-xs mt-2">
           <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-white border border-brand-cream-border" /> Available</span>
           <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-green border border-brand-gold" /> Selected</span>
           <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-gray-200 border border-gray-300" /> Taken</span>
