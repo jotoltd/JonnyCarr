@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Raffle } from '../types';
 import type { User } from '../types';
 import { Button } from './Button';
 import { TicketPurchase } from './TicketPurchase';
-import { Ticket, Users, PoundSterling, Clock, XCircle, Trophy } from 'lucide-react';
+import { Ticket, Users, PoundSterling, Clock, XCircle, Trophy, Timer } from 'lucide-react';
 
 interface RaffleCardProps {
   raffle: Raffle;
@@ -16,10 +16,33 @@ interface RaffleCardProps {
   onDelete?: (id: string) => void;
 }
 
+function getCountdownText(endsAt: string | null): string | null {
+  if (!endsAt) return null;
+  const end = new Date(endsAt).getTime();
+  const now = Date.now();
+  const diff = end - now;
+  if (diff <= 0) return 'Ended';
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  if (days > 0) return `${days}d ${hours}h left`;
+  if (hours > 0) return `${hours}h ${minutes}m left`;
+  return `${minutes}m left`;
+}
+
 export function RaffleCard({ raffle, user, onRequireLogin, isAdmin, onRefresh, onClose, onDraw, onDelete }: RaffleCardProps) {
   const [showPurchase, setShowPurchase] = useState(false);
+  const [countdown, setCountdown] = useState<string | null>(getCountdownText(raffle.ends_at));
   const availableTickets = raffle.total_tickets - raffle.tickets_sold;
   const progress = (raffle.tickets_sold / raffle.total_tickets) * 100;
+
+  useEffect(() => {
+    if (!raffle.ends_at || raffle.status !== 'active') return;
+    const interval = setInterval(() => {
+      setCountdown(getCountdownText(raffle.ends_at));
+    }, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, [raffle.ends_at, raffle.status]);
 
   const getStatusIcon = () => {
     switch (raffle.status) {
@@ -68,6 +91,14 @@ export function RaffleCard({ raffle, user, onRequireLogin, isAdmin, onRefresh, o
             <span className="sm:hidden">{raffle.status.charAt(0).toUpperCase()}</span>
           </span>
         </div>
+
+        {/* Countdown for active raffles */}
+        {raffle.status === 'active' && countdown && (
+          <div className="flex items-center gap-1.5 text-xs text-brand-gold font-medium mb-3 bg-brand-green/10 rounded-lg px-2 py-1.5 w-fit">
+            <Timer className="w-3.5 h-3.5" />
+            <span>{countdown}</span>
+          </div>
+        )}
 
         {/* Progress Bar */}
         <div className="mb-4 sm:mb-6">

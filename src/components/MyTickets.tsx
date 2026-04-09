@@ -73,7 +73,14 @@ export function MyTickets({ user }: MyTicketsProps) {
             <TicketIcon className="w-8 h-8 text-brand-cream-border" />
           </div>
           <h3 className="text-lg font-semibold text-brand-green-dark mb-1">No Tickets Yet</h3>
-          <p className="text-brand-green text-sm">Enter a raffle to see your tickets here.</p>
+          <p className="text-brand-green text-sm mb-4">Enter a raffle to see your tickets here.</p>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'raffles' }))}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-green text-brand-cream rounded-lg font-medium hover:bg-brand-green-dark transition-colors"
+          >
+            <TicketIcon className="w-4 h-4" />
+            Browse Raffles
+          </button>
         </div>
       ) : (
         <div className="space-y-4">

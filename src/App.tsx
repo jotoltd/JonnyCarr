@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { RaffleCard } from './components/RaffleCard';
 import { AdminPanel } from './components/AdminPanel';
+import { RaffleGridSkeleton, FeaturedRaffleSkeleton } from './components/LoadingSkeleton';
+import { SocialProof } from './components/SocialProof';
 import { UserAuth } from './components/UserAuth';
 import { AccountSettings } from './components/AccountSettings';
 import { MyTickets } from './components/MyTickets';
@@ -370,9 +372,9 @@ function App() {
             )}
 
             {isLoading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-brand-green mx-auto"></div>
-                <p className="text-brand-green mt-4 font-medium">Loading raffles...</p>
+              <div className="space-y-6">
+                <FeaturedRaffleSkeleton />
+                <RaffleGridSkeleton count={2} />
               </div>
             ) : raffles.length === 0 ? (
               <div className="text-center py-12 sm:py-16 bg-brand-cream-light rounded-xl shadow-sm border-2 border-brand-cream-border">
@@ -448,6 +450,9 @@ function App() {
                         <strong className="text-brand-green-dark">{Math.floor(Math.random() * 8) + 3}</strong> people viewing this raffle right now
                       </span>
                     </div>
+
+                    {/* Social Proof */}
+                    <SocialProof raffleId={featuredRaffle.id} ticketsSold={featuredRaffle.tickets_sold} />
 
                     <div className="max-w-4xl mx-auto">
                       <RaffleCard

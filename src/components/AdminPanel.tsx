@@ -6,9 +6,9 @@ import { Button } from './Button';
 import { PayPalSettingsModal } from './PayPalSettings';
 import { SkillQuestionBank } from './SkillQuestionBank';
 import { AdminAnalytics } from './AdminAnalytics';
-import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllUsers, updateUser, deleteUser } from '../lib/api';
+import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllUsers, updateUser, deleteUser, createRaffle } from '../lib/api';
 import type { Raffle, Ticket, User } from '../types';
-import { RefreshCw, TicketCheck, AlertCircle, Loader2, X, LogOut, Key, CreditCard, Users } from 'lucide-react';
+import { RefreshCw, TicketCheck, AlertCircle, Loader2, X, LogOut, Key, CreditCard, Users, Copy, Mail } from 'lucide-react';
 
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
@@ -260,6 +260,27 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       await loadRaffles();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete raffle');
+    }
+  };
+
+  const handleDuplicateRaffle = async (raffle: Raffle) => {
+    if (!confirm(`Duplicate raffle "${raffle.title}"?`)) {
+      return;
+    }
+    try {
+      await createRaffle({
+        title: `${raffle.title} (Copy)`,
+        description: raffle.description,
+        image_url: raffle.image_url,
+        skill_question_id: raffle.skill_question_id,
+        total_tickets: raffle.total_tickets,
+        price_per_ticket: raffle.price_per_ticket,
+        status: 'active',
+        ends_at: null,
+      });
+      await loadRaffles();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to duplicate raffle');
     }
   };
 
@@ -582,6 +603,15 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                 <span className="hidden sm:inline">View Tickets</span>
                 <span className="sm:hidden">Tickets</span>
               </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="absolute top-3 right-28 sm:top-4 sm:right-36 text-xs sm:text-sm"
+                onClick={() => handleDuplicateRaffle(raffle)}
+                title="Duplicate Raffle"
+              >
+                <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+              </Button>
             </div>
           ))}
         </div>
@@ -726,6 +756,15 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                 <p className="text-xs sm:text-sm text-brand-green mb-1">Winner:</p>
                 <p className="font-semibold text-brand-green-dark text-sm sm:text-base">{drawResult.winner.buyer_name}</p>
                 <p className="text-xs sm:text-sm text-brand-green break-all">{drawResult.winner.buyer_email}</p>
+                {drawResult.winner.buyer_email && (
+                  <a
+                    href={`mailto:${drawResult.winner.buyer_email}?subject=Congratulations! You've won the raffle&body=Hi ${drawResult.winner.buyer_name},\n\nCongratulations! You've won the raffle. Your winning ticket is #${drawResult.winningTicket}.\n\nPlease contact us to claim your prize.`}
+                    className="inline-flex items-center gap-2 mt-3 px-3 py-2 bg-brand-green text-brand-cream rounded-lg text-sm hover:bg-brand-green-dark transition-colors"
+                  >
+                    <Mail className="w-4 h-4" />
+                    Contact Winner
+                  </a>
+                )}
               </div>
             )}
             <Button onClick={() => setDrawResult(null)} className="w-full">

@@ -462,10 +462,21 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
             })}
           </div>
         )}
-        <div className="flex flex-wrap gap-2 sm:gap-3 text-xs mt-2">
-          <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-cream-light border border-brand-cream-border" /> Available</span>
-          <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-green border border-brand-gold" /> Selected</span>
-          <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-cream-dark border border-brand-cream-border" /> Taken</span>
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-2">
+          <div className="flex flex-wrap gap-2 sm:gap-3 text-xs">
+            <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-cream-light border border-brand-cream-border" /> Available</span>
+            <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-green border border-brand-gold" /> Selected</span>
+            <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-cream-dark border border-brand-cream-border" /> Taken</span>
+          </div>
+          {selectedTicketNumbers.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedTicketNumbers([])}
+              className="text-xs text-brand-green hover:text-red-600 transition-colors"
+            >
+              Clear Selection
+            </button>
+          )}
         </div>
       </div>
 
