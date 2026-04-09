@@ -186,16 +186,19 @@ export function RaffleCard({ raffle, user, onRequireLogin, isAdmin, onRefresh, o
           <div className="pt-4 border-t border-brand-cream-border">
             {!user ? (
               <div className="space-y-3">
-                <p className="text-sm text-brand-green">Please log in to choose and buy ticket numbers.</p>
+                <p className="text-sm text-brand-green text-center">👋 Log in to enter this raffle</p>
                 <Button onClick={onRequireLogin} className="w-full" size="lg">
                   <Ticket className="w-5 h-5 mr-2" />
-                  Login to Buy Tickets
+                  Click Here to Login
                 </Button>
               </div>
             ) : showPurchase ? (
               <div className="animate-in fade-in slide-in-from-top-2">
                 <div className="flex justify-between items-center mb-4">
-                  <h4 className="font-semibold text-brand-green-dark">Purchase Tickets</h4>
+                  <h4 className="font-semibold text-brand-green-dark flex items-center gap-2">
+                    <span className="w-6 h-6 bg-brand-green text-brand-cream rounded-full flex items-center justify-center text-xs">🎫</span>
+                    Get Your Tickets
+                  </h4>
                   <button
                     onClick={() => setShowPurchase(false)}
                     className="text-brand-green hover:text-brand-green-dark"
@@ -212,13 +215,13 @@ export function RaffleCard({ raffle, user, onRequireLogin, isAdmin, onRefresh, o
               <Button
                 onClick={() => setShowPurchase(true)}
                 disabled={availableTickets === 0}
-                className="w-full"
+                className="w-full py-4 text-lg"
                 size="lg"
               >
                 {availableTickets > 0 ? (
                   <>
-                    <Ticket className="w-5 h-5 mr-2" />
-                    Buy Tickets
+                    <Ticket className="w-6 h-6 mr-2" />
+                    Click to Enter Raffle
                   </>
                 ) : (
                   'Sold Out'

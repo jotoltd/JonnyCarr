@@ -393,30 +393,40 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
   // Form step (default)
   return (
     <form onSubmit={handleFormSubmit} className="space-y-4">
-      <div className="bg-brand-cream rounded-lg p-3 sm:p-4 mb-4 border border-brand-cream-border">
-        <div className="flex items-center justify-between mb-2 text-sm">
-          <span className="text-brand-green">Price per ticket:</span>
-          <span className="font-semibold text-brand-green-dark">£{raffle.price_per_ticket}</span>
+      {/* Step Indicator */}
+      <div className="flex items-center gap-2 mb-4 text-sm">
+        <div className="flex items-center gap-1 text-brand-green-dark font-medium">
+          <span className="w-6 h-6 bg-brand-green text-brand-cream rounded-full flex items-center justify-center text-xs font-bold">1</span>
+          <span>Pick Tickets</span>
         </div>
-        <div className="flex items-center justify-between mb-2 text-sm">
-          <span className="text-brand-green">Available tickets:</span>
-          <span className="font-semibold text-brand-green-dark">{availableTickets}</span>
+        <span className="text-brand-cream-border">→</span>
+        <div className={`flex items-center gap-1 ${quantity > 0 ? 'text-brand-green-dark font-medium' : 'text-brand-green'}`}>
+          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${quantity > 0 ? 'bg-brand-green text-brand-cream' : 'bg-brand-cream-dark text-brand-green'}`}>2</span>
+          <span>Answer Question</span>
         </div>
-        <div className="flex items-center justify-between pt-2 border-t border-brand-cream-border">
-          <span className="text-brand-green-dark font-medium">Total:</span>
-          <span className="text-lg sm:text-xl font-bold text-brand-gold">
+        <span className="text-brand-cream-border">→</span>
+        <div className={`flex items-center gap-1 ${quantity > 0 ? 'text-brand-green-dark font-medium' : 'text-brand-green'}`}>
+          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${quantity > 0 ? 'bg-brand-green text-brand-cream' : 'bg-brand-cream-dark text-brand-green'}`}>3</span>
+          <span>Pay & Win</span>
+        </div>
+      </div>
+
+      {/* Price Box */}
+      <div className="bg-brand-green rounded-xl p-4 mb-4 text-brand-cream">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-brand-cream-dark text-sm">Each ticket:</span>
+          <span className="font-bold text-lg">£{raffle.price_per_ticket}</span>
+        </div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-brand-cream-dark text-sm">You picked:</span>
+          <span className="font-bold">{quantity} ticket{quantity !== 1 ? 's' : ''}</span>
+        </div>
+        <div className="border-t border-brand-gold/30 pt-2 flex items-center justify-between">
+          <span className="font-semibold">Total to pay:</span>
+          <span className="font-bold text-2xl text-brand-gold">
             {isPayPalEnabled ? `£${totalPrice.toFixed(2)}` : 'FREE'}
           </span>
         </div>
-        {isPayPalEnabled && (
-          <p className="text-xs text-brand-green mt-2 flex items-center gap-1">
-            <CreditCard className="w-3 h-3" />
-            Payment required via PayPal
-          </p>
-        )}
-        <p className="text-xs text-brand-green mt-1">
-          Selected: {quantity} ticket{quantity !== 1 ? 's' : ''}
-        </p>
       </div>
 
       {error && (
@@ -426,9 +436,10 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
       )}
 
       <div>
-        <label className="block text-sm font-medium text-brand-green-dark mb-2">
-          Choose Ticket Numbers
-        </label>
+        <p className="text-brand-green-dark font-semibold mb-2 flex items-center gap-2">
+          <span className="w-6 h-6 bg-brand-green text-brand-cream rounded-full flex items-center justify-center text-xs font-bold">1</span>
+          Click to pick your lucky numbers:
+        </p>
         {isLoadingTickets ? (
           <div className="flex items-center gap-2 text-sm text-brand-green">
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -462,27 +473,30 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
             })}
           </div>
         )}
-        <div className="flex flex-wrap items-center justify-between gap-2 mt-2">
-          <div className="flex flex-wrap gap-2 sm:gap-3 text-xs">
-            <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-cream-light border border-brand-cream-border" /> Available</span>
-            <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-green border border-brand-gold" /> Selected</span>
-            <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-3 h-3 rounded bg-brand-cream-dark border border-brand-cream-border" /> Taken</span>
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-3 bg-brand-cream rounded-lg p-2">
+          <div className="flex flex-wrap gap-3 text-xs">
+            <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-4 h-4 rounded bg-brand-cream-light border border-brand-cream-border" /> Free</span>
+            <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-4 h-4 rounded bg-brand-green border-2 border-brand-gold" /> Your Pick</span>
+            <span className="inline-flex items-center gap-1 text-brand-green"><span className="w-4 h-4 rounded bg-brand-cream-dark border border-brand-cream-border" /> Sold</span>
           </div>
           {selectedTicketNumbers.length > 0 && (
             <button
               type="button"
               onClick={() => setSelectedTicketNumbers([])}
-              className="text-xs text-brand-green hover:text-red-600 transition-colors"
+              className="text-xs bg-brand-cream-dark hover:bg-red-100 text-brand-green hover:text-red-600 px-2 py-1 rounded transition-colors"
             >
-              Clear Selection
+              Start Over
             </button>
           )}
         </div>
       </div>
 
-      <div className="bg-brand-cream-light border border-brand-cream-border rounded-lg p-3 sm:p-4">
-        <p className="text-sm font-semibold text-brand-green-dark mb-2">Skill Question (Required)</p>
-        <p className="text-sm text-brand-green mb-3">{skillQuestionPrompt || 'Loading question...'}</p>
+      <div className="bg-brand-cream-light border-2 border-brand-gold rounded-xl p-4">
+        <p className="text-brand-green-dark font-semibold mb-2 flex items-center gap-2">
+          <span className="w-6 h-6 bg-brand-green text-brand-cream rounded-full flex items-center justify-center text-xs font-bold">2</span>
+          Answer this to enter:
+        </p>
+        <p className="text-brand-green-dark text-lg mb-3 font-medium">{skillQuestionPrompt || 'Loading question...'}</p>
         <Input
           label="Your Answer *"
           type="text"
@@ -503,31 +517,39 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
         )}
       </div>
 
-      <Input
-        label="Full Name *"
-        type="text"
-        required
-        value={buyerName}
-        onChange={e => setBuyerName(e.target.value)}
-        placeholder="Enter your full name"
-      />
+      <div className="bg-white rounded-lg p-4 border border-brand-cream-border">
+        <p className="text-brand-green-dark font-semibold mb-3 flex items-center gap-2">
+          <span className="w-6 h-6 bg-brand-green text-brand-cream rounded-full flex items-center justify-center text-xs font-bold">3</span>
+          Your Details:
+        </p>
+        <div className="space-y-3">
+          <Input
+            label="Your Name *"
+            type="text"
+            required
+            value={buyerName}
+            onChange={e => setBuyerName(e.target.value)}
+            placeholder="Type your name"
+          />
 
-      <Input
-        label="Email Address *"
-        type="email"
-        required
-        value={buyerEmail}
-        onChange={e => setBuyerEmail(e.target.value)}
-        placeholder="Enter your email"
-      />
+          <Input
+            label="Your Email *"
+            type="email"
+            required
+            value={buyerEmail}
+            onChange={e => setBuyerEmail(e.target.value)}
+            placeholder="Type your email"
+          />
 
-      <Input
-        label="Phone Number (optional)"
-        type="tel"
-        value={buyerPhone}
-        onChange={e => setBuyerPhone(e.target.value)}
-        placeholder="Enter your phone number"
-      />
+          <Input
+            label="Phone (optional)"
+            type="tel"
+            value={buyerPhone}
+            onChange={e => setBuyerPhone(e.target.value)}
+            placeholder="Type your phone number"
+          />
+        </div>
+      </div>
 
       {/* Urgency Message */}
       {quantity > 0 && availableTickets <= 10 && (
@@ -573,10 +595,16 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
         )}
       </Button>
 
-      {/* Guarantee Text */}
-      <p className="text-xs text-center text-brand-green">
-        Instant entry • Email confirmation • No purchase necessary for free draws
-      </p>
+      {/* Simple Help */}
+      <div className="bg-brand-green/5 rounded-lg p-3 text-xs text-brand-green-dark">
+        <p className="font-semibold mb-1">How it works:</p>
+        <ol className="list-decimal list-inside space-y-1">
+          <li>Pick your lucky numbers above</li>
+          <li>Answer the simple question</li>
+          <li>Pay securely via PayPal</li>
+          <li>Get your tickets by email instantly</li>
+        </ol>
+      </div>
     </form>
   );
 }
