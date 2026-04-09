@@ -104,12 +104,12 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-      <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
-        <h2 className="text-lg sm:text-xl font-bold text-gray-900">Create New Raffle</h2>
+    <div className="bg-brand-cream-light rounded-xl shadow-lg border-2 border-brand-cream-border overflow-hidden">
+      <div className="p-4 sm:p-6 border-b border-brand-cream-border flex items-center justify-between">
+        <h2 className="text-lg sm:text-xl font-bold text-brand-green-dark">Create New Raffle</h2>
         <button
           onClick={() => setIsOpen(false)}
-          className="text-gray-400 hover:text-gray-600 transition-colors"
+          className="text-brand-green hover:text-brand-green-dark transition-colors"
         >
           <X className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
@@ -140,7 +140,7 @@ export function CreateRaffleForm({ onSuccess }: CreateRaffleFormProps) {
         />
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-brand-green-dark">
             Raffle Image (optional)
           </label>
           <input
