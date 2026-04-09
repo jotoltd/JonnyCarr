@@ -106,15 +106,16 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
+      <div className="bg-brand-cream-light rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto border-2 border-brand-cream-border">
+        <div className="h-1 bg-brand-gold" />
+        <div className="p-4 sm:p-6 border-b border-brand-cream-border flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5 text-blue-600" />
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900">PayPal Settings</h3>
+            <CreditCard className="w-5 h-5 text-brand-green" />
+            <h3 className="text-lg sm:text-xl font-bold text-brand-green-dark">PayPal Settings</h3>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+            className="text-brand-green hover:text-brand-green-dark flex-shrink-0"
           >
             <X className="w-6 h-6" />
           </button>
@@ -123,7 +124,7 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
           {isLoading && (
             <div className="flex items-center justify-center py-4">
-              <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+              <Loader2 className="w-6 h-6 animate-spin text-brand-green" />
             </div>
           )}
 
@@ -141,9 +142,9 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
             </div>
           )}
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+          <div className="bg-brand-green/10 border border-brand-green/20 rounded-lg p-3 text-sm text-brand-green-dark">
             <p className="flex items-start gap-2">
-              <DollarSign className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <DollarSign className="w-4 h-4 flex-shrink-0 mt-0.5 text-brand-gold" />
               <span>
                 Enter your PayPal Business account details to enable ticket payments. 
                 Get your Client ID from the{' '}
@@ -151,7 +152,7 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
                   href="https://developer.paypal.com/dashboard/" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="underline hover:text-blue-900 inline-flex items-center gap-0.5"
+                  className="underline hover:text-brand-green inline-flex items-center gap-0.5"
                 >
                   PayPal Developer Dashboard
                   <ExternalLink className="w-3 h-3" />
@@ -164,7 +165,7 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
             <button
               type="button"
               onClick={applySandboxDefaults}
-              className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors"
+              className="flex-1 px-3 py-2 bg-brand-cream hover:bg-brand-cream-border rounded-lg text-sm font-medium text-brand-green-dark transition-colors border border-brand-cream-border"
             >
               Use Sandbox Preset
             </button>
@@ -177,22 +178,22 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
             </button>
           </div>
 
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+          <div className="flex items-center gap-3 p-3 bg-brand-cream rounded-lg border border-brand-cream-border">
             <input
               type="checkbox"
               id="paypalEnabled"
               checked={settings.enabled}
               onChange={e => setSettings({ ...settings, enabled: e.target.checked })}
-              className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+              className="w-4 h-4 text-brand-green rounded border-brand-cream-border focus:ring-brand-green"
               disabled={isLoading}
             />
-            <label htmlFor="paypalEnabled" className="text-sm font-medium text-gray-700">
+            <label htmlFor="paypalEnabled" className="text-sm font-medium text-brand-green-dark">
               Enable PayPal Payments
             </label>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-brand-green-dark mb-1">
               PayPal Client ID {settings.enabled && <span className="text-red-500">*</span>}
             </label>
             <input
@@ -200,17 +201,17 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
               value={settings.client_id}
               onChange={e => setSettings({ ...settings, client_id: e.target.value })}
               placeholder="Enter your PayPal Client ID"
-              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3 py-2 border text-sm"
+              className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
               required={settings.enabled}
               disabled={isLoading}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-brand-green mt-1">
               Found in your PayPal Developer Dashboard under Apps & Credentials
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-brand-green-dark mb-1">
               Business Email {settings.enabled && <span className="text-red-500">*</span>}
             </label>
             <input
@@ -218,17 +219,17 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
               value={settings.business_email}
               onChange={e => setSettings({ ...settings, business_email: e.target.value })}
               placeholder="your-business@example.com"
-              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3 py-2 border text-sm"
+              className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
               required={settings.enabled}
               disabled={isLoading}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-brand-green mt-1">
               Your PayPal business account email
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-brand-green-dark mb-1">
               Mode
             </label>
             <div className="flex gap-4">
@@ -239,10 +240,10 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
                   value="sandbox"
                   checked={settings.mode === 'sandbox'}
                   onChange={e => setSettings({ ...settings, mode: e.target.value as 'sandbox' | 'live' })}
-                  className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  className="w-4 h-4 text-brand-green border-brand-cream-border focus:ring-brand-green"
                   disabled={isLoading}
                 />
-                <span className="text-sm text-gray-700">Sandbox (Test)</span>
+                <span className="text-sm text-brand-green-dark">Sandbox (Test)</span>
               </label>
               <label className="flex items-center gap-2">
                 <input
@@ -251,10 +252,10 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
                   value="live"
                   checked={settings.mode === 'live'}
                   onChange={e => setSettings({ ...settings, mode: e.target.value as 'sandbox' | 'live' })}
-                  className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  className="w-4 h-4 text-brand-green border-brand-cream-border focus:ring-brand-green"
                   disabled={isLoading}
                 />
-                <span className="text-sm text-gray-700">Live (Production)</span>
+                <span className="text-sm text-brand-green-dark">Live (Production)</span>
               </label>
             </div>
           </div>

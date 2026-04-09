@@ -415,7 +415,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-brand-green-dark mb-1">
                   New Password
                 </label>
                 <input
