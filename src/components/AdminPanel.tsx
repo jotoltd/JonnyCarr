@@ -373,17 +373,12 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
         <AdminAnalytics />
       )}
 
-      {activeTab === 'raffles' && (
-        <>
-          <CreateRaffleForm onSuccess={loadRaffles} />
-
-      {/* PayPal Settings Modal */}
+      {/* Global Modals */}
       <PayPalSettingsModal
         isOpen={showPayPalSettings}
         onClose={() => setShowPayPalSettings(false)}
       />
 
-      {/* Change Password Modal */}
       {showChangePassword && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-brand-cream-light rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto border-2 border-brand-cream-border">
@@ -459,112 +454,26 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
         </div>
       )}
 
-      <CreateRaffleForm onSuccess={loadRaffles} />
+      {activeTab === 'raffles' && (
+        <div className="space-y-6">
+          <CreateRaffleForm onSuccess={loadRaffles} />
 
-      <SkillQuestionBank />
+          <div className="bg-brand-cream-light rounded-xl border-2 border-brand-cream-border p-4 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-brand-green-dark flex items-center gap-2">
+                  <TicketCheck className="w-5 h-5 text-brand-gold" />
+                  Your Raffles
+                </h3>
+                <p className="text-sm text-brand-green">Manage and monitor your raffles</p>
+              </div>
+              <Button variant="secondary" size="sm" onClick={loadRaffles}>
+                <RefreshCw className="w-4 h-4 mr-1.5" />
+                Refresh
+              </Button>
+            </div>
 
-      <div className="bg-brand-cream-light rounded-xl border-2 border-brand-cream-border p-4 sm:p-6 space-y-4">
-        <div className="flex items-center justify-between gap-2">
-          <div>
-            <h3 className="text-lg sm:text-xl font-bold text-brand-green-dark flex items-center gap-2">
-              <Users className="w-5 h-5 text-brand-gold" />
-              User Management
-            </h3>
-            <p className="text-sm text-brand-green">View and manage all registered users</p>
-          </div>
-          <Button variant="secondary" size="sm" onClick={loadUsers}>
-            <RefreshCw className="w-4 h-4 mr-1.5" />
-            Refresh
-          </Button>
-        </div>
-
-        {userError && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
-            {userError}
-          </div>
-        )}
-        {userSuccess && (
-          <div className="bg-brand-green-muted border border-brand-green rounded-lg p-3 text-brand-green-dark text-sm">
-            {userSuccess}
-          </div>
-        )}
-
-        {isLoadingUsers ? (
-          <div className="flex items-center gap-2 text-sm text-brand-green">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Loading users...
-          </div>
-        ) : users.length === 0 ? (
-          <p className="text-sm text-brand-green">No users found.</p>
-        ) : (
-          <div className="space-y-3 max-h-[480px] overflow-y-auto">
-            {users.map((user) => {
-              const isEditing = editingUserId === user.id;
-
-              return (
-                <div key={user.id} className="bg-white rounded-lg border border-brand-cream-border p-4 space-y-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <p className="font-semibold text-brand-green-dark">{user.name}</p>
-                      <p className="text-sm text-brand-green break-all">{user.email}</p>
-                      <p className="text-xs text-brand-green mt-1">Joined {new Date(user.created_at).toLocaleString()}</p>
-                    </div>
-                    {!isEditing && (
-                      <div className="flex gap-2 flex-wrap justify-end">
-                        <Button size="sm" variant="secondary" onClick={() => handleStartEditUser(user)}>
-                          Edit
-                        </Button>
-                        <Button size="sm" variant="danger" onClick={() => handleDeleteUser(user)}>
-                          Delete
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-
-                  {isEditing && (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-sm font-medium text-brand-green-dark mb-1">Name</label>
-                        <input
-                          type="text"
-                          value={editUserName}
-                          onChange={(e) => setEditUserName(e.target.value)}
-                          className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-brand-green-dark mb-1">Email</label>
-                        <input
-                          type="email"
-                          value={editUserEmail}
-                          onChange={(e) => setEditUserEmail(e.target.value)}
-                          className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-brand-green-dark mb-1">New Password (optional)</label>
-                        <input
-                          type="password"
-                          value={editUserPassword}
-                          onChange={(e) => setEditUserPassword(e.target.value)}
-                          className="block w-full rounded-lg border-brand-cream-border shadow-sm focus:border-brand-green focus:ring-brand-green px-3 py-2 border text-sm bg-white"
-                          placeholder="Leave blank to keep existing password"
-                        />
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={() => handleSaveUser(user.id)}>Save</Button>
-                        <Button size="sm" variant="secondary" onClick={handleCancelEditUser}>Cancel</Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {error && (
+            {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 text-red-700 flex items-center gap-2 text-sm" role="alert">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           <span className="break-words">{error}</span>
@@ -774,8 +683,9 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
           </div>
         </div>
       )}
-        </>
-      )}
+      </div>
+      </div>
+      )} // Added closing parenthesis here
 
       {activeTab === 'users' && (
         <div className="bg-brand-cream-light rounded-xl border-2 border-brand-cream-border p-4 sm:p-6 space-y-4">
@@ -810,12 +720,12 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
               <p className="text-brand-green mt-2 text-sm">Loading users...</p>
             </div>
           ) : users.length === 0 ? (
-            <div className="text-center py-8 bg-white rounded-xl border-2 border-brand-cream-border">
+            <div className="text-center py-8 bg-brand-cream-light rounded-xl border-2 border-brand-cream-border">
               <Users className="w-10 h-10 text-brand-cream-border mx-auto mb-3" />
               <p className="text-brand-green">No users found</p>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border-2 border-brand-cream-border overflow-hidden">
+            <div className="bg-brand-cream-light rounded-xl border-2 border-brand-cream-border overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-brand-cream">
