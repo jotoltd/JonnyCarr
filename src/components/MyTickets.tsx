@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { getTicketsByBuyerEmail } from '../lib/api';
 import type { Ticket } from '../types';
-import { Ticket as TicketIcon, Trophy, Clock, XCircle, Loader2, AlertCircle } from 'lucide-react';
+import { Ticket as TicketIcon, Trophy, Clock, XCircle, AlertCircle } from 'lucide-react';
+import { TicketsListSkeleton } from './LoadingSkeleton';
 import type { User } from '../types';
 
 interface MyTicketsProps {
@@ -63,10 +64,7 @@ export function MyTickets({ user }: MyTicketsProps) {
       )}
 
       {isLoading ? (
-        <div className="text-center py-16">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-brand-green" />
-          <p className="text-brand-green mt-3">Loading your tickets...</p>
-        </div>
+        <TicketsListSkeleton count={3} />
       ) : tickets.length === 0 ? (
         <div className="text-center py-16 bg-brand-cream-light rounded-xl border-2 border-brand-cream-border">
           <div className="w-16 h-16 bg-brand-cream-dark rounded-full flex items-center justify-center mx-auto mb-4">

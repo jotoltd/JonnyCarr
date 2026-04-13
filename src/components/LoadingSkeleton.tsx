@@ -58,3 +58,33 @@ export function FeaturedRaffleSkeleton() {
     </div>
   );
 }
+
+export function TicketSkeleton() {
+  return (
+    <div className="bg-brand-cream-light rounded-xl border-2 border-brand-cream-border p-4 space-y-3">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-brand-cream-dark rounded-full animate-pulse" />
+        <div className="flex-1 space-y-2">
+          <div className="h-5 bg-brand-cream-dark rounded w-2/3 animate-pulse" />
+          <div className="h-3 bg-brand-cream-dark rounded w-1/2 animate-pulse" />
+        </div>
+        <div className="w-16 h-6 bg-brand-cream-dark rounded-full animate-pulse" />
+      </div>
+      <div className="flex flex-wrap gap-2 pt-2">
+        <div className="w-12 h-8 bg-brand-cream-dark rounded animate-pulse" />
+        <div className="w-12 h-8 bg-brand-cream-dark rounded animate-pulse" />
+        <div className="w-12 h-8 bg-brand-cream-dark rounded animate-pulse" />
+      </div>
+    </div>
+  );
+}
+
+export function TicketsListSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <TicketSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
