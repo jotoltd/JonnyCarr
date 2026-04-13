@@ -6,7 +6,7 @@ import { Button } from './Button';
 import { PayPalSettingsModal } from './PayPalSettings';
 import { SkillQuestionBank } from './SkillQuestionBank';
 import { AdminAnalytics } from './AdminAnalytics';
-import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllUsers, updateUser, deleteUser, createRaffle } from '../lib/api';
+import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllUsers, createRaffle } from '../lib/api';
 import type { Raffle, Ticket, User } from '../types';
 import { RefreshCw, TicketCheck, AlertCircle, Loader2, X, LogOut, Key, CreditCard, Users, Copy, Mail } from 'lucide-react';
 
@@ -59,7 +59,6 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editUserName, setEditUserName] = useState('');
   const [editUserEmail, setEditUserEmail] = useState('');
-  const [editUserPassword, setEditUserPassword] = useState('');
   const [activeTab, setActiveTab] = useState<'raffles' | 'users' | 'analytics' | 'questions'>('raffles');
 
   const loadRaffles = async () => {

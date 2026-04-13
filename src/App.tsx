@@ -14,7 +14,7 @@ import { PastWinners } from './components/PastWinners';
 import { About } from './components/About';
 import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
-import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2, AlertTriangle, Eye, Clock, CheckCircle, Trophy, Info } from 'lucide-react';
+import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2, AlertTriangle, Eye, Clock, CheckCircle, Trophy } from 'lucide-react';
 
 // Admin user name
 const ADMIN_USERNAME = 'Jonathan';
