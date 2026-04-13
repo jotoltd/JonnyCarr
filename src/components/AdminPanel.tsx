@@ -92,68 +92,6 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
     loadUsers();
   }, []);
 
-  const handleStartEditUser = (user: User) => {
-    setEditingUserId(user.id);
-    setEditUserName(user.name);
-    setEditUserEmail(user.email);
-    setEditUserPassword('');
-    setUserError('');
-    setUserSuccess('');
-  };
-
-  const handleCancelEditUser = () => {
-    setEditingUserId(null);
-    setEditUserName('');
-    setEditUserEmail('');
-    setEditUserPassword('');
-  };
-
-  const handleSaveUser = async (id: string) => {
-    if (!editUserName.trim() || !editUserEmail.trim()) {
-      setUserError('Name and email are required');
-      return;
-    }
-
-    try {
-      setUserError('');
-      setUserSuccess('');
-      await updateUser(id, {
-        name: editUserName.trim(),
-        email: editUserEmail.trim(),
-        ...(editUserPassword.trim() ? { password: editUserPassword.trim() } : {}),
-      });
-      await loadUsers();
-      setEditingUserId(null);
-      setEditUserName('');
-      setEditUserEmail('');
-      setEditUserPassword('');
-      setUserSuccess('User updated');
-    } catch (err) {
-      setUserError(err instanceof Error ? err.message : 'Failed to update user');
-    }
-  };
-
-  const handleDeleteUser = async (user: User) => {
-    if (user.name === 'Jonathan') {
-      setUserError('The main admin user cannot be deleted');
-      return;
-    }
-
-    if (!confirm(`Delete user ${user.email}? This action cannot be undone.`)) {
-      return;
-    }
-
-    try {
-      setUserError('');
-      setUserSuccess('');
-      await deleteUser(user.id);
-      await loadUsers();
-      setUserSuccess('User deleted');
-    } catch (err) {
-      setUserError(err instanceof Error ? err.message : 'Failed to delete user');
-    }
-  };
-
   const handleChangePassword = (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordChangeError('');
