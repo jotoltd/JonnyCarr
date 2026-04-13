@@ -151,10 +151,10 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
               }],
             });
           },
-          onApprove: (data: { orderID: string }, actions: { order: { capture: () => Promise<{ payer: { email_address: string; }; }>; }; }) => {
+          onApprove: (data: unknown, actions: { order: { capture: () => Promise<{ payer: { email_address: string; }; }>; }; }) => {
             return actions.order.capture().then((orderData: { payer: { email_address: string; }; }) => {
               // Capture order ID for server verification
-              const orderId = data.orderID;
+              const orderId = (data as { orderID: string }).orderID;
               // Payment captured, now verify server-side and purchase tickets
               handlePaymentSuccess(orderData, orderId);
             });

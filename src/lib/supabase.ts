@@ -197,6 +197,7 @@ export async function purchaseTickets(
       buyer_name: buyerName,
       buyer_email: buyerEmail,
       buyer_phone: buyerPhone,
+      paypal_order_id: null,
       purchased_at: new Date().toISOString(),
     }));
     mockTickets.push(...newTickets);
