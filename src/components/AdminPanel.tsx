@@ -6,9 +6,9 @@ import { Button } from './Button';
 import { PayPalSettingsModal } from './PayPalSettings';
 import { SkillQuestionBank } from './SkillQuestionBank';
 import { AdminAnalytics } from './AdminAnalytics';
-import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllUsers, createRaffle } from '../lib/api';
+import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllUsers, createRaffle, createAdminUser } from '../lib/api';
 import type { Raffle, Ticket, User } from '../types';
-import { RefreshCw, TicketCheck, AlertCircle, Loader2, X, LogOut, Key, CreditCard, Users, Copy, Mail } from 'lucide-react';
+import { RefreshCw, TicketCheck, AlertCircle, Loader2, X, LogOut, Key, CreditCard, Users, Copy, Mail, UserPlus } from 'lucide-react';
 
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
@@ -58,6 +58,12 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editUserName, setEditUserName] = useState('');
   const [editUserEmail, setEditUserEmail] = useState('');
+  const [showCreateAdmin, setShowCreateAdmin] = useState(false);
+  const [newAdminName, setNewAdminName] = useState('');
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [newAdminPassword, setNewAdminPassword] = useState('');
+  const [createAdminError, setCreateAdminError] = useState('');
+  const [createAdminSuccess, setCreateAdminSuccess] = useState('');
   const [activeTab, setActiveTab] = useState<'raffles' | 'users' | 'analytics' | 'questions'>('raffles');
 
   const loadRaffles = async () => {
@@ -184,6 +190,33 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       });
     } catch (err) {
       setDrawError(err instanceof Error ? err.message : 'Failed to draw winner');
+    }
+  };
+
+  const handleCreateAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreateAdminError('');
+    setCreateAdminSuccess('');
+
+    if (!newAdminName.trim() || !newAdminEmail.trim() || !newAdminPassword) {
+      setCreateAdminError('Please fill in all fields');
+      return;
+    }
+
+    if (newAdminPassword.length < 4) {
+      setCreateAdminError('Password must be at least 4 characters');
+      return;
+    }
+
+    try {
+      await createAdminUser(newAdminEmail, newAdminPassword, newAdminName);
+      setCreateAdminSuccess(`Admin user "${newAdminName}" created successfully!`);
+      setNewAdminName('');
+      setNewAdminEmail('');
+      setNewAdminPassword('');
+      await loadUsers();
+    } catch (err) {
+      setCreateAdminError(err instanceof Error ? err.message : 'Failed to create admin user');
     }
   };
 
@@ -644,6 +677,88 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
               {userError}
             </div>
           )}
+
+          {/* Create Admin Section */}
+          <div className="bg-brand-cream rounded-xl border-2 border-brand-cream-border p-4">
+            {!showCreateAdmin ? (
+              <Button
+                variant="secondary"
+                onClick={() => setShowCreateAdmin(true)}
+                className="w-full sm:w-auto"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Create New Admin
+              </Button>
+            ) : (
+              <form onSubmit={handleCreateAdmin} className="space-y-4">
+                <h4 className="font-semibold text-brand-green-dark flex items-center gap-2">
+                  <UserPlus className="w-4 h-4 text-brand-gold" />
+                  Create Admin User
+                </h4>
+
+                {createAdminError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
+                    {createAdminError}
+                  </div>
+                )}
+                {createAdminSuccess && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-green-700 text-sm">
+                    {createAdminSuccess}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <input
+                    type="text"
+                    value={newAdminName}
+                    onChange={e => setNewAdminName(e.target.value)}
+                    placeholder="Name"
+                    className="px-3 py-2 border border-brand-cream-border rounded-lg text-sm focus:border-brand-green focus:ring-brand-green"
+                    required
+                  />
+                  <input
+                    type="email"
+                    value={newAdminEmail}
+                    onChange={e => setNewAdminEmail(e.target.value)}
+                    placeholder="Email"
+                    className="px-3 py-2 border border-brand-cream-border rounded-lg text-sm focus:border-brand-green focus:ring-brand-green"
+                    required
+                  />
+                  <input
+                    type="password"
+                    value={newAdminPassword}
+                    onChange={e => setNewAdminPassword(e.target.value)}
+                    placeholder="Password (min 4 chars)"
+                    className="px-3 py-2 border border-brand-cream-border rounded-lg text-sm focus:border-brand-green focus:ring-brand-green"
+                    required
+                    minLength={4}
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <Button type="submit" size="sm">
+                    Create Admin
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setShowCreateAdmin(false);
+                      setCreateAdminError('');
+                      setCreateAdminSuccess('');
+                      setNewAdminName('');
+                      setNewAdminEmail('');
+                      setNewAdminPassword('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            )}
+          </div>
+
           {isLoadingUsers ? (
             <div className="text-center py-8">
               <Loader2 className="w-6 h-6 animate-spin mx-auto text-brand-green" />

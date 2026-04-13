@@ -124,6 +124,29 @@ export async function deleteUser(id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function createAdminUser(email: string, password: string, name: string): Promise<User> {
+  const { data: existing } = await supabase
+    .from('users')
+    .select('email')
+    .eq('email', email)
+    .single();
+
+  if (existing) {
+    throw new Error('User already exists with this email');
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const { data, error } = await supabase
+    .from('users')
+    .insert({ email, password: hashedPassword, name, role: 'admin' })
+    .select('id, email, name, role, created_at')
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
 // PayPal Settings operations
 export interface PayPalSettings {
   id?: string;
