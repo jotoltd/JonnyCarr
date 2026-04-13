@@ -11,9 +11,10 @@ import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { HowToPlay } from './components/HowToPlay';
 import { TermsConditions } from './components/TermsConditions';
 import { PastWinners } from './components/PastWinners';
+import { About } from './components/About';
 import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
-import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2, AlertTriangle, Eye, Clock, CheckCircle, Trophy } from 'lucide-react';
+import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2, AlertTriangle, Eye, Clock, CheckCircle, Trophy, Info } from 'lucide-react';
 
 // Admin user name
 const ADMIN_USERNAME = 'Jonathan';
@@ -30,6 +31,7 @@ function App() {
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   // Restore session from localStorage on mount
   useEffect(() => {
@@ -589,6 +591,11 @@ function App() {
         <TermsConditions onClose={() => setShowTerms(false)} />
       )}
 
+      {/* About Modal */}
+      {showAbout && (
+        <About onClose={() => setShowAbout(false)} />
+      )}
+
       {/* Footer */}
       <footer className="bg-brand-green border-t-4 border-brand-gold mt-8 sm:mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -617,6 +624,13 @@ function App() {
                 className="text-brand-cream hover:text-brand-gold transition-colors underline underline-offset-2"
               >
                 Privacy Policy
+              </button>
+              <span className="text-brand-cream/50">|</span>
+              <button
+                onClick={() => setShowAbout(true)}
+                className="text-brand-cream hover:text-brand-gold transition-colors underline underline-offset-2"
+              >
+                About Jonny
               </button>
             </div>
           </div>
