@@ -48,10 +48,15 @@ function App() {
     const setupJoshAdmin = async () => {
       try {
         await createAdminUser('josh@gmail.com', 'lalala14', 'Josh');
-        console.log('Josh admin user created successfully');
+        console.log('✅ Josh admin user created successfully');
       } catch (err) {
         // User might already exist, that's ok
-        console.log('Josh admin setup:', err instanceof Error ? err.message : 'skipped');
+        const msg = err instanceof Error ? err.message : 'Unknown error';
+        console.log('Josh admin setup:', msg);
+        // If user exists, that's fine - they can login
+        if (msg.includes('already exists')) {
+          console.log('✅ Josh admin already exists, ready to login');
+        }
       }
     };
     setupJoshAdmin();

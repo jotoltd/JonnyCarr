@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Button } from './Button';
 import { Input } from './Input';
 import type { User } from '../types';
-import { registerUser, loginUser } from '../lib/api';
-import { AlertCircle } from 'lucide-react';
+import { registerUser, loginUser, createAdminUser } from '../lib/api';
+import { AlertCircle, Shield } from 'lucide-react';
 
 const LOGO_SRC = `${import.meta.env.BASE_URL}logo.png`;
 
@@ -137,6 +137,31 @@ export function UserAuth({ onLogin }: UserAuthProps) {
               className="text-brand-gold hover:text-brand-gold-dark font-semibold mt-1 text-sm sm:text-base"
             >
               {isLogin ? 'Register here' : 'Login here'}
+            </button>
+          </div>
+
+          {/* Debug: Create Admin Button */}
+          <div className="mt-4 pt-4 border-t border-brand-cream-border">
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await createAdminUser('josh@gmail.com', 'lalala14', 'Josh');
+                  setError('');
+                  alert('✅ Admin user created! You can now log in with:\nEmail: josh@gmail.com\nPassword: lalala14');
+                } catch (err) {
+                  const msg = err instanceof Error ? err.message : 'Failed';
+                  if (msg.includes('already exists')) {
+                    alert('ℹ️ Admin user already exists. Try logging in with:\nEmail: josh@gmail.com\nPassword: lalala14');
+                  } else {
+                    alert('❌ Error: ' + msg);
+                  }
+                }
+              }}
+              className="text-xs text-brand-green-dark hover:text-brand-gold flex items-center justify-center gap-1 w-full"
+            >
+              <Shield className="w-3 h-3" />
+              Setup Admin (Josh)
             </button>
           </div>
         </div>
