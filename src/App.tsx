@@ -12,7 +12,7 @@ import { HowToPlay } from './components/HowToPlay';
 import { TermsConditions } from './components/TermsConditions';
 import { PastWinners } from './components/PastWinners';
 import { About } from './components/About';
-import { getActiveRaffles, getUserByEmail } from './lib/api';
+import { getActiveRaffles, getUserByEmail, createAdminUser } from './lib/api';
 import type { Raffle, User } from './types';
 import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2, AlertTriangle, Eye, Clock, CheckCircle, Trophy } from 'lucide-react';
 
@@ -41,6 +41,20 @@ function App() {
         else localStorage.removeItem('session_email');
       });
     }
+  }, []);
+
+  // Auto-create Josh admin user on app load
+  useEffect(() => {
+    const setupJoshAdmin = async () => {
+      try {
+        await createAdminUser('josh@gmail.com', 'lalala14', 'Josh');
+        console.log('Josh admin user created successfully');
+      } catch (err) {
+        // User might already exist, that's ok
+        console.log('Josh admin setup:', err instanceof Error ? err.message : 'skipped');
+      }
+    };
+    setupJoshAdmin();
   }, []);
 
   // Admin check from database role - secured server-side
