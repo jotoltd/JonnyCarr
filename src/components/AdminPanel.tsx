@@ -6,7 +6,7 @@ import { Button } from './Button';
 import { PayPalSettingsModal } from './PayPalSettings';
 import { SkillQuestionBank } from './SkillQuestionBank';
 import { AdminAnalytics } from './AdminAnalytics';
-import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllUsers, createRaffle, createAdminUser } from '../lib/api';
+import { getAllRaffles, closeRaffle, deleteRaffle, getTicketsByRaffleId, drawWinner, getAllUsers, createRaffle, createAdminUser, updateUser } from '../lib/api';
 import type { Raffle, Ticket, User } from '../types';
 import { RefreshCw, TicketCheck, AlertCircle, Loader2, X, LogOut, Key, CreditCard, Users, Copy, Mail, UserPlus } from 'lucide-react';
 
@@ -58,6 +58,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editUserName, setEditUserName] = useState('');
   const [editUserEmail, setEditUserEmail] = useState('');
+  const [editUserRole, setEditUserRole] = useState<'user' | 'admin'>('user');
   const [showCreateAdmin, setShowCreateAdmin] = useState(false);
   const [newAdminName, setNewAdminName] = useState('');
   const [newAdminEmail, setNewAdminEmail] = useState('');
@@ -217,6 +218,36 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       await loadUsers();
     } catch (err) {
       setCreateAdminError(err instanceof Error ? err.message : 'Failed to create admin user');
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    setEditingUserId(user.id);
+    setEditUserName(user.name);
+    setEditUserEmail(user.email);
+    setEditUserRole(user.role);
+    setUserError('');
+  };
+
+  const handleCancelEditUser = () => {
+    setEditingUserId(null);
+    setEditUserName('');
+    setEditUserEmail('');
+    setEditUserRole('user');
+  };
+
+  const handleSaveUser = async (id: string) => {
+    try {
+      setUserError('');
+      await updateUser(id, {
+        name: editUserName.trim(),
+        email: editUserEmail.trim(),
+        role: editUserRole,
+      });
+      await loadUsers();
+      handleCancelEditUser();
+    } catch (err) {
+      setUserError(err instanceof Error ? err.message : 'Failed to update user');
     }
   };
 
@@ -777,6 +808,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-brand-green-dark uppercase tracking-wider">Name</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-brand-green-dark uppercase tracking-wider">Email</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-brand-green-dark uppercase tracking-wider">Role</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-brand-green-dark uppercase tracking-wider">Joined</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-brand-green-dark uppercase tracking-wider">Actions</th>
                     </tr>
@@ -809,6 +841,22 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                           )}
                         </td>
                         <td className="px-4 py-3">
+                          {editingUserId === u.id ? (
+                            <select
+                              value={editUserRole}
+                              onChange={e => setEditUserRole(e.target.value as 'user' | 'admin')}
+                              className="w-full px-2 py-1 border border-brand-cream-border rounded text-sm bg-white"
+                            >
+                              <option value="user">User</option>
+                              <option value="admin">Admin</option>
+                            </select>
+                          ) : (
+                            <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${u.role === 'admin' ? 'bg-brand-gold/20 text-brand-green-dark' : 'bg-brand-cream text-brand-green'}`}>
+                              {u.role}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
                           <span className="text-brand-green text-sm">
                             {new Date(u.created_at).toLocaleDateString('en-GB')}
                           </span>
@@ -817,12 +865,12 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                           <div className="flex gap-2">
                             {editingUserId === u.id ? (
                               <>
-                                <Button variant="primary" size="sm" onClick={() => {}} className="text-xs">Save</Button>
-                                <Button variant="outline" size="sm" onClick={() => setEditingUserId(null)} className="text-xs">Cancel</Button>
+                                <Button variant="primary" size="sm" onClick={() => handleSaveUser(u.id)} className="text-xs">Save</Button>
+                                <Button variant="outline" size="sm" onClick={handleCancelEditUser} className="text-xs">Cancel</Button>
                               </>
                             ) : (
                               <>
-                                <Button variant="secondary" size="sm" onClick={() => { setEditingUserId(u.id); setEditUserName(u.name); setEditUserEmail(u.email); }} className="text-xs">Edit</Button>
+                                <Button variant="secondary" size="sm" onClick={() => handleEditUser(u)} className="text-xs">Edit</Button>
                                 <Button variant="danger" size="sm" onClick={() => {}} className="text-xs">Delete</Button>
                               </>
                             )}

@@ -8,6 +8,73 @@ const RAFFLE_IMAGE_BUCKET = 'raffle-images';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+ async function selectUserWithRoleByEmail(email: string) {
+  let result = await supabase
+    .from('users')
+    .select('id, email, name, role, created_at, password')
+    .eq('email', email)
+    .single();
+
+  if (result.error && result.error.message?.includes('role')) {
+    const fallback = await supabase
+      .from('users')
+      .select('id, email, name, created_at, password')
+      .eq('email', email)
+      .single();
+
+    return {
+      data: fallback.data ? { ...fallback.data, role: 'user' as const } : null,
+      error: fallback.error,
+    };
+  }
+
+  return result;
+ }
+
+ async function selectPublicUserByEmail(email: string) {
+  let result = await supabase
+    .from('users')
+    .select('id, email, name, role, created_at')
+    .eq('email', email)
+    .single();
+
+  if (result.error && result.error.message?.includes('role')) {
+    const fallback = await supabase
+      .from('users')
+      .select('id, email, name, created_at')
+      .eq('email', email)
+      .single();
+
+    return {
+      data: fallback.data ? { ...fallback.data, role: 'user' as const } : null,
+      error: fallback.error,
+    };
+  }
+
+  return result;
+ }
+
+ async function selectAllUsersWithRole() {
+  let result = await supabase
+    .from('users')
+    .select('id, email, name, role, created_at')
+    .order('created_at', { ascending: false });
+
+  if (result.error && result.error.message?.includes('role')) {
+    const fallback = await supabase
+      .from('users')
+      .select('id, email, name, created_at')
+      .order('created_at', { ascending: false });
+
+    return {
+      data: (fallback.data || []).map(user => ({ ...user, role: 'user' as const })),
+      error: fallback.error,
+    };
+  }
+
+  return result;
+ }
+
 // User operations
 export async function registerUser(email: string, password: string, name: string): Promise<User> {
   const { data: existing } = await supabase
@@ -33,11 +100,7 @@ export async function registerUser(email: string, password: string, name: string
 }
 
 export async function loginUser(email: string, password: string): Promise<User | null> {
-  const { data, error } = await supabase
-    .from('users')
-    .select('id, email, name, role, created_at, password')
-    .eq('email', email)
-    .single();
+  const { data, error } = await selectUserWithRoleByEmail(email);
   
   if (error || !data) {
     throw new Error('Invalid email or password');
@@ -68,7 +131,7 @@ export async function loginUser(email: string, password: string): Promise<User |
 
 export async function updateUser(
   id: string,
-  updates: { name?: string; email?: string; password?: string }
+  updates: { name?: string; email?: string; password?: string; role?: 'user' | 'admin' }
 ): Promise<User> {
   if (updates.password) {
     updates = { ...updates, password: await bcrypt.hash(updates.password, 10) };
@@ -83,33 +146,39 @@ export async function updateUser(
     if (existing) throw new Error('That email is already in use');
   }
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('users')
     .update(updates)
     .eq('id', id)
     .select('id, email, name, role, created_at')
     .single();
 
+  if (error && error.message?.includes('role')) {
+    const { role: _role, ...updatesWithoutRole } = updates;
+    const fallback = await supabase
+      .from('users')
+      .update(updatesWithoutRole)
+      .eq('id', id)
+      .select('id, email, name, created_at')
+      .single();
+
+    data = fallback.data ? { ...fallback.data, role: 'user' as const } : null;
+    error = fallback.error;
+  }
+
   if (error) throw error;
-  return data;
+  return data as User;
 }
 
 export async function getUserByEmail(email: string): Promise<User | null> {
-  const { data, error } = await supabase
-    .from('users')
-    .select('id, email, name, role, created_at')
-    .eq('email', email)
-    .single();
+  const { data, error } = await selectPublicUserByEmail(email);
   
   if (error) return null;
   return data;
 }
 
 export async function getAllUsers(): Promise<User[]> {
-  const { data, error } = await supabase
-    .from('users')
-    .select('id, email, name, role, created_at')
-    .order('created_at', { ascending: false });
+  const { data, error } = await selectAllUsersWithRole();
 
   if (error) throw error;
   return data || [];
