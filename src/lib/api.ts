@@ -125,11 +125,16 @@ export async function deleteUser(id: string): Promise<void> {
 }
 
 export async function createAdminUser(email: string, password: string, name: string): Promise<User> {
-  const { data: existing } = await supabase
+  // Check if user exists (use maybeSingle instead of single to avoid 406 error)
+  const { data: existing, error: checkError } = await supabase
     .from('users')
     .select('email')
     .eq('email', email)
-    .single();
+    .maybeSingle();
+
+  if (checkError) {
+    throw new Error(`Database check failed: ${checkError.message}`);
+  }
 
   if (existing) {
     throw new Error('User already exists with this email');
@@ -137,14 +142,31 @@ export async function createAdminUser(email: string, password: string, name: str
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const { data, error } = await supabase
+  // Try to insert with role, but if role column doesn't exist, try without it
+  let { data, error } = await supabase
     .from('users')
     .insert({ email, password: hashedPassword, name, role: 'admin' })
     .select('id, email, name, role, created_at')
     .single();
 
-  if (error) throw error;
-  return data;
+  // If role column error, try without role (fallback for missing column)
+  if (error && error.message && error.message.includes('role')) {
+    const result = await supabase
+      .from('users')
+      .insert({ email, password: hashedPassword, name })
+      .select('id, email, name, created_at')
+      .single();
+    data = result.data as User;
+    error = result.error;
+  }
+
+  if (error) {
+    throw new Error(`Insert failed: ${error.message} (${error.code || 'no code'})`);
+  }
+  if (!data) {
+    throw new Error('No data returned from insert');
+  }
+  return data as User;
 }
 
 // PayPal Settings operations
