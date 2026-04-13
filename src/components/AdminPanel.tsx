@@ -55,7 +55,6 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [userError, setUserError] = useState('');
-  const [userSuccess, setUserSuccess] = useState('');
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editUserName, setEditUserName] = useState('');
   const [editUserEmail, setEditUserEmail] = useState('');
@@ -645,12 +644,6 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
               {userError}
             </div>
           )}
-          {userSuccess && (
-            <div className="bg-brand-green-muted border border-brand-green rounded-lg p-3 text-brand-green-dark text-sm">
-              {userSuccess}
-            </div>
-          )}
-
           {isLoadingUsers ? (
             <div className="text-center py-8">
               <Loader2 className="w-6 h-6 animate-spin mx-auto text-brand-green" />
