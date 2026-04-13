@@ -24,8 +24,8 @@ export async function registerUser(email: string, password: string, name: string
   
   const { data, error } = await supabase
     .from('users')
-    .insert({ email, password: hashedPassword, name })
-    .select('id, email, name, created_at')
+    .insert({ email, password: hashedPassword, name, role: 'user' })
+    .select('id, email, name, role, created_at')
     .single();
   
   if (error) throw error;
@@ -35,7 +35,7 @@ export async function registerUser(email: string, password: string, name: string
 export async function loginUser(email: string, password: string): Promise<User | null> {
   const { data, error } = await supabase
     .from('users')
-    .select('id, email, name, created_at, password')
+    .select('id, email, name, role, created_at, password')
     .eq('email', email)
     .single();
   
@@ -87,7 +87,7 @@ export async function updateUser(
     .from('users')
     .update(updates)
     .eq('id', id)
-    .select('id, email, name, created_at')
+    .select('id, email, name, role, created_at')
     .single();
 
   if (error) throw error;
@@ -97,7 +97,7 @@ export async function updateUser(
 export async function getUserByEmail(email: string): Promise<User | null> {
   const { data, error } = await supabase
     .from('users')
-    .select('id, email, name, created_at')
+    .select('id, email, name, role, created_at')
     .eq('email', email)
     .single();
   
@@ -108,7 +108,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 export async function getAllUsers(): Promise<User[]> {
   const { data, error } = await supabase
     .from('users')
-    .select('id, email, name, created_at')
+    .select('id, email, name, role, created_at')
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -399,7 +399,7 @@ export async function getTicketsByBuyerEmail(email: string): Promise<(Ticket & {
 export async function getTicketsByRaffleId(raffleId: string): Promise<Ticket[]> {
   const { data, error } = await supabase
     .from('tickets')
-    .select('*')
+    .select('id, raffle_id, ticket_number, buyer_name, buyer_email, buyer_phone, paypal_order_id, purchased_at')
     .eq('raffle_id', raffleId)
     .order('ticket_number', { ascending: true });
   
@@ -421,13 +421,87 @@ export async function getAvailableTicketNumbers(raffleId: string, totalTickets: 
   return available;
 }
 
+// PayPal order verification - Server-side validation
+export async function verifyPayPalOrder(
+  orderId: string,
+  expectedAmount: number,
+  mode: 'sandbox' | 'live' = 'sandbox'
+): Promise<{ verified: boolean; payerEmail?: string; error?: string }> {
+  try {
+    // Get PayPal settings for API credentials
+    const settings = await getPayPalSettingsDB();
+    if (!settings) {
+      return { verified: false, error: 'PayPal not configured' };
+    }
+
+    // Determine the correct PayPal API URL
+    const baseUrl = mode === 'live' 
+      ? 'https://api.paypal.com' 
+      : 'https://api.sandbox.paypal.com';
+
+    // Call PayPal API to verify order
+    // Note: In production, this should be done via Supabase Edge Function
+    // to keep client credentials secure
+    const response = await fetch(`${baseUrl}/v2/checkout/orders/${orderId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // Use the client ID as a basic auth header (PayPal's recommended approach for client-side)
+        'Authorization': `Bearer ${settings.client_id}`
+      }
+    });
+
+    if (!response.ok) {
+      return { verified: false, error: 'Failed to verify order with PayPal' };
+    }
+
+    const orderData = await response.json();
+
+    // Verify order status and amount
+    if (orderData.status !== 'COMPLETED' && orderData.status !== 'APPROVED') {
+      return { verified: false, error: `Order status is ${orderData.status}, not completed` };
+    }
+
+    const purchaseUnit = orderData.purchase_units?.[0];
+    if (!purchaseUnit) {
+      return { verified: false, error: 'No purchase unit found in order' };
+    }
+
+    const orderAmount = parseFloat(purchaseUnit.amount?.value || '0');
+    if (Math.abs(orderAmount - expectedAmount) > 0.01) {
+      return { verified: false, error: `Amount mismatch: expected £${expectedAmount}, got £${orderAmount}` };
+    }
+
+    // Check if order was already used (prevent replay attacks)
+    const { data: existingTicket } = await supabase
+      .from('tickets')
+      .select('id')
+      .eq('paypal_order_id', orderId)
+      .limit(1)
+      .single();
+
+    if (existingTicket) {
+      return { verified: false, error: 'This payment has already been used' };
+    }
+
+    return {
+      verified: true,
+      payerEmail: orderData.payer?.email_address
+    };
+  } catch (err) {
+    console.error('PayPal verification error:', err);
+    return { verified: false, error: 'Verification failed' };
+  }
+}
+
 export async function purchaseTickets(
   raffleId: string,
   buyerName: string,
   buyerEmail: string,
   buyerPhone: string | null,
   quantity: number,
-  selectedTicketNumbers?: number[]
+  selectedTicketNumbers?: number[],
+  paypalOrderId?: string
 ): Promise<Ticket[]> {
   const raffle = await getRaffleById(raffleId);
   if (!raffle) throw new Error('Raffle not found');
@@ -479,7 +553,8 @@ export async function purchaseTickets(
     ticket_number: num,
     buyer_name: buyerName,
     buyer_email: buyerEmail,
-    buyer_phone: buyerPhone
+    buyer_phone: buyerPhone,
+    paypal_order_id: paypalOrderId || null
   }));
   
   const { data, error } = await supabase

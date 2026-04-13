@@ -21,6 +21,7 @@ export interface Ticket {
   buyer_name: string;
   buyer_email: string;
   buyer_phone: string | null;
+  paypal_order_id: string | null;
   purchased_at: string;
 }
 
@@ -40,5 +41,6 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  role: 'user' | 'admin';
   created_at: string;
 }

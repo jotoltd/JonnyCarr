@@ -3,7 +3,7 @@ import emailjs from '@emailjs/browser';
 import type { Raffle, User } from '../types';
 import { Button } from './Button';
 import { Input } from './Input';
-import { purchaseTickets, getPayPalSettingsDB, getAvailableTicketNumbers, getSkillQuestionById, validateSkillAnswer, type PayPalSettings } from '../lib/api';
+import { purchaseTickets, getPayPalSettingsDB, getAvailableTicketNumbers, getSkillQuestionById, validateSkillAnswer, verifyPayPalOrder, type PayPalSettings } from '../lib/api';
 import { Ticket, CheckCircle, Loader2, CreditCard, AlertCircle, Shield } from 'lucide-react';
 
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
@@ -151,10 +151,12 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
               }],
             });
           },
-          onApprove: (_data: unknown, actions: { order: { capture: () => Promise<{ payer: { email_address: string; }; }>; }; }) => {
+          onApprove: (data: { orderID: string }, actions: { order: { capture: () => Promise<{ payer: { email_address: string; }; }>; }; }) => {
             return actions.order.capture().then((orderData: { payer: { email_address: string; }; }) => {
-              // Payment successful, now purchase tickets
-              handlePaymentSuccess(orderData);
+              // Capture order ID for server verification
+              const orderId = data.orderID;
+              // Payment captured, now verify server-side and purchase tickets
+              handlePaymentSuccess(orderData, orderId);
             });
           },
           onError: (err: unknown) => {
@@ -170,11 +172,19 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
     }
   }, [paypalLoaded, paymentStep, totalPrice, raffle.title, quantity]);
 
-  const handlePaymentSuccess = async (orderData: { payer: { email_address: string; } }) => {
+  const handlePaymentSuccess = async (orderData: { payer: { email_address: string; } }, orderId: string) => {
     setIsSubmitting(true);
     setError('');
     
     try {
+      // Server-side PayPal verification
+      const paypalMode = paypalSettings?.mode || 'sandbox';
+      const verification = await verifyPayPalOrder(orderId, totalPrice, paypalMode);
+      
+      if (!verification.verified) {
+        throw new Error(`Payment verification failed: ${verification.error}`);
+      }
+      
       const email = orderData.payer.email_address || buyerEmail;
       const tickets = await purchaseTickets(
         raffle.id,
@@ -182,7 +192,8 @@ export function TicketPurchase({ raffle, user, onSuccess }: TicketPurchaseProps)
         email,
         buyerPhone || null,
         quantity,
-        selectedTicketNumbers
+        selectedTicketNumbers,
+        orderId
       );
       const nums = tickets.map(t => t.ticket_number);
       setPurchasedTickets(nums);

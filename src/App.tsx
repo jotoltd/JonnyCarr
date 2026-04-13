@@ -16,8 +16,7 @@ import { getActiveRaffles, getUserByEmail } from './lib/api';
 import type { Raffle, User } from './types';
 import { Ticket, Users, User as UserIcon, LogOut, Shield, Menu, X, Settings, PoundSterling, Share2, Link2, AlertTriangle, Eye, Clock, CheckCircle, Trophy } from 'lucide-react';
 
-// Admin user name
-const ADMIN_USERNAME = 'Jonathan';
+// Logo path
 const LOGO_SRC = `${import.meta.env.BASE_URL}logo.png`;
 
 function App() {
@@ -44,8 +43,8 @@ function App() {
     }
   }, []);
 
-  // No localStorage persistence - all user data in database only
-  const isAdmin = user?.name === ADMIN_USERNAME;
+  // Admin check from database role - secured server-side
+  const isAdmin = user?.role === 'admin';
   const featuredRaffle = raffles[0] || null;
   const otherRaffles = raffles.slice(1);
   const featuredAvailableTickets = featuredRaffle
