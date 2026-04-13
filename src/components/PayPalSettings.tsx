@@ -105,8 +105,8 @@ export function PayPalSettingsModal({ isOpen, onClose }: PayPalSettingsModalProp
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
-      <div className="bg-brand-cream-light rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto border-2 border-brand-cream-border">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50 animate-in fade-in duration-200">
+      <div className="bg-brand-cream-light rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto border-2 border-brand-cream-border animate-in zoom-in-95 slide-in-from-bottom-4 duration-200">
         <div className="h-1 bg-brand-gold" />
         <div className="p-4 sm:p-6 border-b border-brand-cream-border flex items-center justify-between">
           <div className="flex items-center gap-2">

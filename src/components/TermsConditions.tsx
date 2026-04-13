@@ -6,8 +6,8 @@ interface TermsConditionsProps {
 
 export function TermsConditions({ onClose }: TermsConditionsProps) {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-brand-cream-light rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border-2 border-brand-cream-border">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto animate-in fade-in duration-200">
+      <div className="bg-brand-cream-light rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border-2 border-brand-cream-border animate-in zoom-in-95 slide-in-from-bottom-4 duration-200">
         <div className="h-1 bg-brand-gold" />
         
         {/* Header */}
